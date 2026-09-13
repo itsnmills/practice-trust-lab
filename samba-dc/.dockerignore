@@ -1,0 +1,2 @@
+# Never send generated credentials into the build context.
+.env
