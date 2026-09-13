@@ -32,12 +32,14 @@ info "Generating credentials"
 if [ ! -f samba-dc/.env ]; then
   command -v openssl >/dev/null || { echo "openssl is required to generate credentials"; exit 1; }
   rand() { openssl rand -base64 18 | tr -d '/+=' | cut -c1-18; }
+  umask 077
   cat > samba-dc/.env <<EOF
 SAMBA_ADMIN_PASS=$(rand)
 USER_TEMP_PASS=$(rand)
 TECH_PASS=$(rand)
 LAB_BIND_IP=127.0.0.1
 EOF
+  umask 022
   echo "created samba-dc/.env"
 else
   echo "samba-dc/.env already exists"
