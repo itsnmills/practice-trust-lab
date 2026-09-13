@@ -42,11 +42,43 @@ def dexec(cmd, timeout=30):
     return sh(["docker", "exec", DC] + cmd, timeout=timeout)
 
 
+def preflight():
+    """Fail fast with a clear message when the lab is not reachable."""
+    try:
+        probe = subprocess.run(
+            ["docker", "info"],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.PIPE,
+            text=True,
+            timeout=20,
+        )
+    except Exception as exc:  # noqa: BLE001
+        print(f"error: docker CLI not available ({exc})", file=sys.stderr)
+        return False
+    if probe.returncode != 0:
+        detail = (probe.stderr or "").strip().splitlines()
+        print(
+            "error: docker daemon not reachable"
+            + (f" ({detail[-1]})" if detail else "")
+            + "; start Docker and retry",
+            file=sys.stderr,
+        )
+        return False
+    state = sh(["docker", "inspect", "-f", "{{.State.Running}}", DC]).strip()
+    if state != "true":
+        print(
+            f"error: container '{DC}' is not running; run scripts/bootstrap.sh first",
+            file=sys.stderr,
+        )
+        return False
+    return True
+
+
 def parse_user_list():
     users = []
     for line in dexec(["samba-tool", "user", "list"]).splitlines():
         line = line.strip()
-        if line and line not in ("Administrator", "Guest", "krbtgt"):
+        if line and not line.startswith("__ERROR__") and line not in ("Administrator", "Guest", "krbtgt"):
             users.append(line)
     return users
 
@@ -472,6 +504,9 @@ def main():
     ap.add_argument("--quiet", action="store_true")
     args = ap.parse_args()
 
+    if not preflight():
+        return 2
+
     ts = datetime.now(timezone.utc)
     snapshot = {
         "collector": "collect_practice_evidence.py",
@@ -648,7 +683,8 @@ def main():
     if not args.quiet:
         print(f"snapshot: {json_path}")
         print(f"markdown: {md_path}")
-        print("findings: " + ", ".join(f"{k}={v}" for k, v in sorted(counts.items())) or "none")
+        summary = ", ".join(f"{k}={v}" for k, v in sorted(counts.items())) or "none"
+        print(f"findings: {summary}")
     return 0
 
 
