@@ -1,0 +1,27 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Compile evidence scripts
+        run: python -m py_compile evidence/collect_practice_evidence.py evidence/render_practice_snapshot.py
+      - name: Script help output
+        run: |
+          python evidence/collect_practice_evidence.py --help
+          python evidence/render_practice_snapshot.py --help
+      - name: Render the committed sample snapshot
+        run: python evidence/render_practice_snapshot.py examples/sample-snapshot.json --out /tmp/sample-packet.html
+      - name: Shell syntax check
+        run: |
+          for f in scripts/*.sh samba-dc/*.sh endpoint/*.sh; do
+            bash -n "$f"
+          done

@@ -1,5 +1,7 @@
 # Practice Trust Lab
 
+[![CI](https://github.com/itsnmills/practice-trust-lab/actions/workflows/ci.yml/badge.svg)](https://github.com/itsnmills/practice-trust-lab/actions/workflows/ci.yml)
+
 **A synthetic small-clinic environment that produces real, dated, no-PHI security evidence.**
 
 The lab stands up a fake medical practice — Active Directory domain, domain-joined
@@ -35,7 +37,7 @@ Samba AD DC (millslab.internal)                     clinic-ehr (mock EHR, :8095)
 └── File shares with AD-group ACLs                  ├── public web intake form
     ├── ClinicalShare    (schedules, insurance)     └── AI-scribe egress simulation
     ├── FrontOfficeShare (intake responses)
-    └── ITShare          (admin runbooks)           osTicket helpdesk (optional)
+    └── ITShare          (admin runbooks)
 
 Endpoints (all domain-joined)
 ├── ws-clinical-01  syncs clinical exports to a local desktop
@@ -51,10 +53,11 @@ by default (`LAB_BIND_IP` in `samba-dc/.env` if you want a VPN interface).
 
 ## Quickstart
 
-Requirements: Docker with Compose, Python 3.10+, Linux.
+Requirements: Linux with Docker Compose v2, Python 3.10+, and `openssl`
+(tested on Ubuntu 24.04).
 
 ```bash
-git clone <this-repo> practice-trust-lab && cd practice-trust-lab
+git clone https://github.com/itsnmills/practice-trust-lab.git && cd practice-trust-lab
 ./scripts/bootstrap.sh        # network, volume, credentials, domain, shares, endpoints
 ./scripts/seed-scenario.sh    # plant the shadow-IT app (supply-chain demo)
 ./scripts/run-evidence.sh     # collect a snapshot and render the packet
@@ -62,6 +65,19 @@ git clone <this-repo> practice-trust-lab && cd practice-trust-lab
 
 Open `evidence/latest.html`. A pre-rendered example lives at
 [`examples/sample-packet.html`](examples/sample-packet.html).
+
+To tear the lab down:
+
+```bash
+for d in workstation-01 frontdesk-01 msp-jump-01 clinic-ehr samba-dc; do
+  (cd "$d" && docker compose down -v)
+done
+docker network rm mills-lab
+docker volume rm mills-lab-shares
+```
+
+Generated runtime files (`samba-dc/.env`, `*/home`, `*/logs`, `clinic-ehr/data`)
+are left in place; delete them for a pristine tree.
 
 ## The evidence pass
 
