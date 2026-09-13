@@ -6,10 +6,10 @@ audit trail: patient records, a public intake form, and an "AI scribe" egress
 path that shows patient-adjacent data leaving the EHR boundary.
 """
 
+import html
 import json
 import os
 import sqlite3
-import time
 from datetime import datetime, timezone
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import parse_qs, urlparse
@@ -209,10 +209,17 @@ def audit_page():
     events = []
     if os.path.exists(LOG_PATH):
         with open(LOG_PATH, encoding="utf-8") as fh:
-            events = [json.loads(line) for line in fh][-60:][::-1]
+            for line in fh:
+                try:
+                    events.append(json.loads(line))
+                except json.JSONDecodeError:
+                    continue
     rows = "".join(
-        f"<tr><td>{e['ts']}</td><td>{e['event']}</td><td>{e['detail']}</td><td>{e['remote']}</td></tr>"
-        for e in events
+        f"<tr><td>{html.escape(str(e.get('ts', '')))}</td>"
+        f"<td>{html.escape(str(e.get('event', '')))}</td>"
+        f"<td>{html.escape(str(e.get('detail', '')))}</td>"
+        f"<td>{html.escape(str(e.get('remote', '')))}</td></tr>"
+        for e in events[-60:][::-1]
     )
     body = f"""
 <h1>Access &amp; transmission log</h1>
