@@ -1,0 +1,18 @@
+# Credentials and environment
+.env
+**/.env
+
+# Runtime lab data (endpoint home dirs, logs, EHR data)
+**/home/
+**/logs/
+clinic-ehr/data/
+
+# Evidence runtime output (samples in examples/ are committed)
+evidence/artifacts/
+evidence/ledger.jsonl
+evidence/latest.html
+evidence/.catalogs/
+
+# Python
+__pycache__/
+*.pyc

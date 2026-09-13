@@ -1,0 +1,412 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Practice Trust Packet &middot; millslab.internal (synthetic)</title>
+<style>
+:root {
+  --ink: #17191d; --body: #3a3f45; --muted: #6d737a; --faint: #9aa0a7;
+  --hair: rgba(23,25,29,0.16); --hair-soft: rgba(23,25,29,0.08);
+  --paper: #fcfbf9; --hot: #8f2f26; --gold: #c9a84c;
+  --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--paper); color: var(--ink);
+  font: 15px/1.55 var(--sans); -webkit-font-smoothing: antialiased;
+}
+.sheet { max-width: 1040px; margin: 0 auto; padding: 0 40px 72px; }
+h1, h2, h3 { margin: 0; letter-spacing: -0.015em; }
+p { margin: 0; }
+.mono { font-family: var(--mono); font-size: 12px; }
+.sub { display: block; margin-top: 2px; color: var(--muted); font-size: 12px; }
+.muted { color: var(--muted); }
+.right { text-align: right; }
+.hot { color: var(--hot); }
+
+/* masthead + title block */
+.masthead { border-top: 2px solid var(--gold); margin-top: 34px; }
+.masthead-row {
+  display: flex; align-items: baseline; justify-content: space-between; gap: 24px;
+  padding: 16px 0 12px; border-bottom: 1px solid var(--ink);
+}
+.wordmark { font-size: 12px; font-weight: 700; letter-spacing: 0.24em; text-transform: uppercase; }
+.docid { font-family: var(--mono); font-size: 12px; color: var(--muted); }
+.title-block { padding-top: 30px; }
+h1 { font-size: 32px; font-weight: 700; line-height: 1.1; letter-spacing: -0.015em; }
+.standfirst { margin-top: 10px; font-size: 17px; line-height: 1.5; max-width: 640px; }
+.kvb {
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 48px; margin: 26px 0 0; padding: 0; max-width: 760px;
+}
+.kvb div { display: flex; justify-content: space-between; gap: 16px; padding: 7px 0; border-bottom: 1px solid var(--hair-soft); }
+.kvb dt { color: var(--muted); }
+.kvb dd { margin: 0; font-family: var(--mono); font-size: 12px; text-align: right; }
+.see-also { margin-top: 12px; font-size: 12px; color: var(--muted); }
+
+/* sections */
+section { margin-top: 64px; }
+h2 { font-size: 19px; font-weight: 700; line-height: 1.25; padding-top: 14px; border-top: 1px solid var(--ink); }
+h2 .secnum { color: var(--faint); font-weight: 700; margin-right: 12px; font-variant-numeric: tabular-nums; }
+h3 { font-size: 15px; font-weight: 700; line-height: 1.4; padding-bottom: 8px; border-bottom: 1px solid var(--hair); }
+.sec-lede { margin-top: 12px; color: var(--body); max-width: 640px; }
+.sec-note { margin-top: 12px; font-size: 12px; color: var(--muted); }
+
+/* summary */
+.counts { display: flex; gap: 40px; margin-top: 22px; padding: 12px 0; border-bottom: 1px solid var(--hair); }
+.count { display: inline-flex; align-items: baseline; gap: 8px; }
+.ck { font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+.cv { min-width: 2ch; text-align: right; font-size: 19px; font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: -0.01em; }
+.summary-sentence { margin-top: 14px; color: var(--body); }
+.change-note { margin-top: 18px; font-size: 13.5px; color: var(--body); }
+.change-note .plabel { color: var(--muted); }
+.drift-list { margin: 10px 0 0; padding: 0; }
+.drift { display: grid; grid-template-columns: 120px minmax(0, 1fr); gap: 14px; padding: 5px 0; border-bottom: 1px solid var(--hair-soft); }
+.drift dt { font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); padding-top: 1px; }
+.drift dd { margin: 0; }
+
+/* decision brief */
+.clause { display: grid; grid-template-columns: 64px minmax(0, 1fr); gap: 20px; padding: 20px 0; border-bottom: 1px solid var(--hair-soft); }
+.clause:first-of-type { border-top: 1px solid var(--hair-soft); margin-top: 22px; }
+.clause-rail { display: flex; flex-direction: column; gap: 4px; }
+.cnum { font-family: var(--mono); font-size: 12px; color: var(--ink); }
+.verdict { font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink); }
+.clause-body p { color: var(--body); max-width: 640px; }
+.clause-body strong { color: var(--ink); font-weight: 700; }
+.proof-line { margin-top: 9px !important; font-size: 13px; color: var(--muted); }
+.plabel { color: var(--muted); }
+.xref { font-family: var(--mono); font-size: 11.5px; }
+
+/* evidence schedule */
+table { width: 100%; border-collapse: collapse; }
+.sched { margin-top: 22px; }
+.sched th {
+  padding: 0 14px 8px 0; text-align: left; vertical-align: bottom;
+  border-bottom: 1px solid var(--ink);
+  font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); white-space: nowrap;
+}
+.sched td { padding: 12px 14px 12px 0; border-bottom: 1px solid var(--hair-soft); vertical-align: top; font-size: 13px; line-height: 1.45; font-variant-numeric: tabular-nums; }
+.sched td:last-child, .sched th:last-child { padding-right: 0; }
+.sched tr:last-child td { border-bottom: 0; }
+.pgroup td { padding: 20px 0 8px; border-bottom: 1px solid var(--hair); font-size: 12.5px; font-weight: 600; color: var(--body); }
+.ptag { display: inline-block; margin-right: 10px; font-family: var(--mono); font-weight: 700; font-size: 12px; }
+.ref { width: 56px; }
+.refnum { color: var(--muted); }
+.finding { min-width: 320px; }
+.finding strong { font-weight: 700; }
+.enum { margin-top: 5px; font-family: var(--mono); font-size: 11.5px; line-height: 1.65; color: var(--body); overflow-wrap: anywhere; }
+.finding .ask { margin-top: 8px; color: var(--body); max-width: 560px; }
+.finding .proof { margin-top: 4px; color: var(--muted); max-width: 560px; }
+.finding .ev { margin-top: 6px; font-size: 12px; color: var(--muted); }
+.lane { width: 150px; color: var(--body); }
+.due { width: 96px; white-space: nowrap; color: var(--body); }
+
+/* reviewer lanes */
+.lane-row { padding: 10px 0; border-bottom: 1px solid var(--hair-soft); max-width: 760px; }
+.lane-row strong { font-weight: 700; }
+.lane-row:first-of-type { margin-top: 18px; border-top: 1px solid var(--hair-soft); }
+
+/* supporting evidence */
+.subsec { margin-top: 42px; }
+.subsec:first-of-type { margin-top: 30px; }
+.evidence-table { margin-top: 14px; }
+.evidence-table th { padding: 0 14px 7px 0; text-align: left; border-bottom: 1px solid var(--ink); font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+.evidence-table td { padding: 9px 14px 9px 0; border-bottom: 1px solid var(--hair-soft); font-size: 13px; font-variant-numeric: tabular-nums; }
+.evidence-table tr:last-child td { border-bottom: 0; }
+.evidence-table td:last-child, .evidence-table th:last-child { padding-right: 0; }
+.split { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 48px; }
+.policy { margin: 0; }
+.policy div { display: flex; justify-content: space-between; gap: 16px; padding: 6px 0; border-bottom: 1px solid var(--hair-soft); }
+.policy dt { color: var(--muted); }
+.policy dd { margin: 0; font-family: var(--mono); font-size: 12px; }
+.eqmark { font-family: var(--mono); font-size: 11px; color: var(--muted); }
+
+/* section 6 + attestation */
+.limits { margin-top: 18px; max-width: 720px; }
+.limit { display: grid; grid-template-columns: 56px minmax(0, 1fr); gap: 16px; padding: 10px 0; border-bottom: 1px solid var(--hair-soft); }
+.limit dt { font-family: var(--mono); font-size: 12px; color: var(--muted); }
+.limit dd { margin: 0; color: var(--body); }
+.stamp { display: flex; flex-wrap: wrap; gap: 8px 32px; margin-top: 22px; font-size: 12px; color: var(--muted); }
+.stamp span { font-family: var(--mono); }
+.attestation { margin-top: 34px; border-top: 2px solid var(--gold); padding-top: 14px; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 10px 28px; font-size: 12px; color: var(--body); }
+.attestation .sig { font-family: var(--mono); }
+
+@media (max-width: 760px) {
+  .sheet { padding: 0 22px 56px; }
+  h1 { font-size: 26px; }
+  .kvb { grid-template-columns: 1fr; gap: 0; }
+  .counts { flex-wrap: wrap; gap: 18px 32px; }
+  .clause { grid-template-columns: 1fr; gap: 8px; }
+  .clause-rail { flex-direction: row; gap: 12px; align-items: baseline; }
+  .split { grid-template-columns: 1fr; gap: 0; }
+  .sched th:nth-child(3), .sched td:nth-child(3) { display: none; }
+  .finding { min-width: 0; }
+  .drift { grid-template-columns: 1fr; gap: 0; }
+}
+@media print {
+  @page { margin: 18mm 16mm; }
+  body { background: #fff; }
+  .sheet { max-width: none; padding: 0; }
+  h1, h2, h3 { break-after: avoid; page-break-after: avoid; }
+  .sec-note, .sec-lede { break-after: avoid; page-break-after: avoid; }
+  section { break-inside: auto; margin-top: 44px; }
+  section.sec-short { break-inside: avoid; page-break-inside: avoid; }
+  .subsec { break-inside: avoid; page-break-inside: avoid; }
+  .kvb, .counts, .summary-sentence, .change-note, .sec-note, .lane-row { break-inside: avoid; }
+  .clause, .limit, .subsec table tr, .evidence-table tr { break-inside: avoid; }
+  .pgroup { break-inside: avoid; break-after: avoid; page-break-after: avoid; }
+  table, .sched { break-inside: auto; }
+  .sched, .evidence-table { break-before: avoid; page-break-before: avoid; }
+  section.sec-pagebreak { break-before: page; page-break-before: always; }
+  thead { display: table-header-group; }
+  tr { break-inside: avoid; page-break-inside: avoid; }
+}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <header class="masthead">
+    <div class="masthead-row">
+      <span class="wordmark">Velari</span>
+      <span class="docid">VLR-PTP-20260913-1857</span>
+    </div>
+  </header>
+
+  <div class="title-block">
+    <h1>Practice Trust Packet</h1>
+    <p class="standfirst">One review pass across identity, data movement, endpoints, and supply chain for millslab.internal (synthetic). What changed, what it means, and the proof to save.</p>
+    <dl class="kvb">
+      <div><dt>Subject</dt><dd>millslab.internal (synthetic)</dd></div>
+      <div><dt>Collected</dt><dd>13 Sep 2026, 18:57 UTC</dd></div>
+      <div><dt>Auth window</dt><dd>24 hours</dd></div>
+      <div><dt>Collector</dt><dd>collect_practice_evidence.py</dd></div>
+      <div><dt>Prepared for</dt><dd>Practice owner &middot; MSP &middot; counsel</dd></div>
+      <div><dt>Schema</dt><dd>velari.practice-snapshot/0.2</dd></div>
+    </dl>
+    <p class="see-also">Boundaries and limitations: see &sect;6. Synthetic lab data; no real patient information.</p>
+  </div>
+
+  <section class="sec-short">
+    <h2><span class="secnum">1</span>Summary of findings</h2>
+    <div class="counts"><span class="count"><span class="ck hot">P1</span><span class="cv">8</span></span><span class="count"><span class="ck">P2</span><span class="cv">3</span></span><span class="count"><span class="ck">P3</span><span class="cv">8</span></span><span class="count"><span class="ck">P4</span><span class="cv">2</span></span></div>
+    <p class="summary-sentence">8 priority-1 findings; 4 require owner decision (&sect;2). Evidence schedule in &sect;3.</p>
+    <p class="change-note"><span class="plabel">Change monitor &mdash;</span> No changes against the 13 Sep 2026, 18:56 UTC snapshot.</p>
+  </section>
+
+  <section class="sec-short">
+    <h2><span class="secnum">2</span>Decision brief</h2>
+    <div class="clause">
+        <div class="clause-rail"><span class="cnum">2.1</span><span class="verdict hot">BLOCK</span></div>
+        <div class="clause-body">
+          <p><strong>Do not deploy the flagged package.</strong> The front-desk billing helper carries a known-compromised dependency. Keep it off any other machine until the package is removed or replaced.</p>
+          <p class="proof-line"><span class="plabel">Proof to save:</span> Clean re-scan receipt <span class="xref">&rarr; E-01</span></p>
+        </div>
+      </div><div class="clause">
+        <div class="clause-rail"><span class="cnum">2.2</span><span class="verdict ">REVIEW</span></div>
+        <div class="clause-body">
+          <p><strong>Hold AI scribe expansion.</strong> Encounter data is leaving the EHR to a vendor with no verified BAA. Do not expand the pilot until BAA evidence is on file.</p>
+          <p class="proof-line"><span class="plabel">Proof to save:</span> Signed BAA + subprocessor list <span class="xref">&rarr; E-02</span></p>
+        </div>
+      </div><div class="clause">
+        <div class="clause-rail"><span class="cnum">2.3</span><span class="verdict ">REVIEW</span></div>
+        <div class="clause-body">
+          <p><strong>Stop desktop copies of clinical exports.</strong> Patient-adjacent exports sit on local desktops outside the managed share. Stop the copy workflow and document the replacement.</p>
+          <p class="proof-line"><span class="plabel">Proof to save:</span> Endpoint cleanup confirmation <span class="xref">&rarr; E-03</span></p>
+        </div>
+      </div><div class="clause">
+        <div class="clause-rail"><span class="cnum">2.4</span><span class="verdict ">REVIEW</span></div>
+        <div class="clause-body">
+          <p><strong>Confirm business need for share exports.</strong> Schedule and insurance exports live on a share that clinical staff can reach. Confirm each export is required, then restrict to the minimum lane.</p>
+          <p class="proof-line"><span class="plabel">Proof to save:</span> Owner signoff per export <span class="xref">&rarr; E-04</span></p>
+        </div>
+      </div>
+  </section>
+
+  <section class="sec-short sec-pagebreak">
+    <h2><span class="secnum">3</span>Evidence schedule</h2>
+    <p class="sec-note">Due windows are computed from collection (13 Sep 2026, 18:57 UTC). Refs E-nn are cited throughout.</p>
+    <table class="sched">
+      <thead><tr><th>Ref</th><th>Finding</th><th>Owner lane</th><th>Due</th></tr></thead>
+      <tbody><tr class="pgroup"><td colspan="4"><span class="ptag hot">P1</span>Priority 1 &mdash; act by 20 Sep 2026</td></tr><tr>
+        <td class="ref"><span class="mono refnum">E-01</span></td>
+        <td class="finding">
+          <strong>Known-compromised package on an endpoint</strong><div class='enum'>Known-compromised package node-ipc@10.1.1 (npm) in frontdesk-01/home/Desktop/Downloads/billing-helper</div>
+          <p class="ask">Remove or replace the flagged package, then re-scan the endpoint.</p>
+          <p class="proof"><span class="plabel">Proof:</span> Remediated lockfile + clean scan receipt</p>
+          <p class="ev">Evidence: Verified</p>
+        </td>
+        <td class="lane">MSP + practice owner</td>
+        <td class="due mono">20 Sep 2026</td>
+      </tr><tr>
+        <td class="ref"><span class="mono refnum">E-02</span></td>
+        <td class="finding">
+          <strong>AI scribe transmissions without verified BAA</strong><div class='enum'>2 scribe transmission events; verify signed BAA per vendor</div>
+          <p class="ask">Obtain a signed BAA and subprocessor list before any expansion.</p>
+          <p class="proof"><span class="plabel">Proof:</span> Signed BAA + subprocessor list</p>
+          <p class="ev">Evidence: Observed</p>
+        </td>
+        <td class="lane">Practice owner + scribe vendor</td>
+        <td class="due mono">20 Sep 2026</td>
+      </tr><tr>
+        <td class="ref"><span class="mono refnum">E-03</span></td>
+        <td class="finding">
+          <strong>Patient-adjacent exports cached on endpoints</strong><div class='enum'>ws-clinical-01 — 2 files<br>fd-frontdesk-01 — 1 file<br>msp-jump-01 — 1 file</div>
+          <p class="ask">Remove local copies and document a share-only workflow.</p>
+          <p class="proof"><span class="plabel">Proof:</span> Cleanup confirmation + workflow note</p>
+          <p class="ev">Evidence: Verified</p>
+        </td>
+        <td class="lane">MSP + front office</td>
+        <td class="due mono">20 Sep 2026</td>
+      </tr><tr>
+        <td class="ref"><span class="mono refnum">E-04</span></td>
+        <td class="finding">
+          <strong>Patient-adjacent data on file shares</strong><div class='enum'>/srv/samba/shares/frontoffice/intake-form-responses-2026-09.csv<br>/srv/samba/shares/clinical/patient-schedule-export-2026-09.csv<br>/srv/samba/shares/clinical/insurance-verification-2026-09.csv</div>
+          <p class="ask">Confirm business need per export; move to minimal-access share or remove.</p>
+          <p class="proof"><span class="plabel">Proof:</span> Share ACL export + owner signoff</p>
+          <p class="ev">Evidence: Verified</p>
+        </td>
+        <td class="lane">Practice owner + MSP</td>
+        <td class="due mono">27 Sep 2026</td>
+      </tr><tr class="pgroup"><td colspan="4"><span class="ptag ">P2</span>Priority 2 &mdash; act by 13 Oct 2026</td></tr><tr>
+        <td class="ref"><span class="mono refnum">E-05</span></td>
+        <td class="finding">
+          <strong>Public web intake form in use</strong><div class='enum'>1 public web intake submission; confirm TLS + retention + access control</div>
+          <p class="ask">Confirm TLS, retention, and access control for the intake form.</p>
+          <p class="proof"><span class="plabel">Proof:</span> Vendor security page + retention statement</p>
+          <p class="ev">Evidence: Observed</p>
+        </td>
+        <td class="lane">MSP + web vendor</td>
+        <td class="due mono">13 Oct 2026</td>
+      </tr><tr>
+        <td class="ref"><span class="mono refnum">E-06</span></td>
+        <td class="finding">
+          <strong>Authentication failures in the review window</strong><div class='enum'>20 auth failures in last 24h; check lockout source</div>
+          <p class="ask">Review the failure source and any inbound authentication attempts.</p>
+          <p class="proof"><span class="plabel">Proof:</span> Auth log summary</p>
+          <p class="ev">Evidence: Observed</p>
+        </td>
+        <td class="lane">MSP</td>
+        <td class="due mono">27 Sep 2026</td>
+      </tr><tr>
+        <td class="ref"><span class="mono refnum">E-07</span></td>
+        <td class="finding">
+          <strong>Admin-equivalent group membership</strong><div class='enum'>SG-IT membership = local admin equivalent; confirm business need and MFA path</div>
+          <p class="ask">Confirm business need; enforce MFA on admin-equivalent access.</p>
+          <p class="proof"><span class="plabel">Proof:</span> Access review signoff + MFA evidence</p>
+          <p class="ev">Evidence: Verified</p>
+        </td>
+        <td class="lane">MSP</td>
+        <td class="due mono">13 Oct 2026</td>
+      </tr><tr class="pgroup"><td colspan="4"><span class="ptag ">P3</span>Priority 3 &mdash; act by 13 Oct 2026</td></tr><tr>
+        <td class="ref"><span class="mono refnum">E-08</span></td>
+        <td class="finding">
+          <strong>Dormant enabled accounts</strong><div class='enum'>malvarez<br>aruiz<br>dpark<br>etran<br>sokafor<br>kwhite<br>pnatarajan</div>
+          <p class="ask">Disable or document each unused account.</p>
+          <p class="proof"><span class="plabel">Proof:</span> Account disposition list</p>
+          <p class="ev">Evidence: Verified</p>
+        </td>
+        <td class="lane">MSP</td>
+        <td class="due mono">13 Oct 2026</td>
+      </tr><tr>
+        <td class="ref"><span class="mono refnum">E-09</span></td>
+        <td class="finding">
+          <strong>non-password auth failure observed: NT_STATUS_PROTOCOL_UNREACHABLE</strong>
+          <p class="ask">Review the item and assign an owner.</p>
+          <p class="proof"><span class="plabel">Proof:</span> Review note</p>
+          <p class="ev">Evidence: Observed</p>
+        </td>
+        <td class="lane">Practice owner</td>
+        <td class="due mono">13 Oct 2026</td>
+      </tr><tr class="pgroup"><td colspan="4"><span class="ptag ">P4</span>Priority 4 &mdash; act by 12 Dec 2026</td></tr><tr>
+        <td class="ref"><span class="mono refnum">E-10</span></td>
+        <td class="finding">
+          <strong>Disabled accounts still present</strong><div class='enum'>svc-backup<br>rhayes</div>
+          <p class="ask">Confirm disabled accounts are still required; remove if not.</p>
+          <p class="proof"><span class="plabel">Proof:</span> Offboarding record</p>
+          <p class="ev">Evidence: Verified</p>
+        </td>
+        <td class="lane">Practice owner</td>
+        <td class="due mono">12 Dec 2026</td>
+      </tr></tbody>
+    </table>
+  </section>
+
+  <section class="sec-short">
+    <h2><span class="secnum">4</span>Reviewer lanes</h2>
+    <p class='lane-row'><strong>Practice owner</strong> &mdash; E-01–E-02 (20 Sep 2026); E-04 (27 Sep 2026); E-09 (13 Oct 2026); E-10 (12 Dec 2026)</p><p class='lane-row'><strong>MSP</strong> &mdash; E-01 (20 Sep 2026); E-03 (20 Sep 2026); E-04 (27 Sep 2026); E-05 (13 Oct 2026); E-06 (27 Sep 2026); E-07–E-08 (13 Oct 2026)</p><p class='lane-row'><strong>Scribe vendor</strong> &mdash; E-02 (20 Sep 2026)</p><p class='lane-row'><strong>Web vendor</strong> &mdash; E-05 (13 Oct 2026)</p><p class='lane-row'><strong>Front office</strong> &mdash; E-03 (20 Sep 2026)</p>
+  </section>
+
+  <section>
+    <h2><span class="secnum">5</span>Supporting evidence</h2>
+
+    <div class="split">
+      <div class="subsec">
+        <h3>5.1 Password policy</h3>
+        <dl class="policy"><div><dt>Password complexity</dt><dd>on</dd></div><div><dt>Store plaintext passwords</dt><dd>off</dd></div><div><dt>Password history length</dt><dd>24</dd></div><div><dt>Minimum password length</dt><dd>10</dd></div><div><dt>Minimum password age (days)</dt><dd>0</dd></div><div><dt>Maximum password age (days)</dt><dd>42</dd></div><div><dt>Account lockout duration (mins)</dt><dd>15</dd></div><div><dt>Account lockout threshold (attempts)</dt><dd>5</dd></div><div><dt>Reset account lockout after (mins)</dt><dd>10</dd></div></dl>
+      </div>
+      <div class="subsec">
+        <h3>5.2 Privileged groups</h3>
+        <table class="evidence-table"><thead><tr><th>Group</th><th>Members</th></tr></thead><tbody><tr><td>Domain Admins</td><td class='mono'>Administrator</td></tr><tr><td>Enterprise Admins</td><td class='mono'>Administrator</td></tr><tr><td>SG-IT</td><td class='mono'>nmills</td></tr></tbody></table>
+      </div>
+    </div>
+
+    <div class="subsec">
+      <h3>5.3 Account review</h3>
+      <table class="evidence-table"><thead><tr><th>Account</th><th>State</th><th>Last logon</th><th>Flags</th></tr></thead>
+      <tbody><tr><td class='mono'>malvarez</td><td>Enabled</td><td class='mono'>--</td><td>never logged on</td></tr><tr><td class='mono'>aruiz</td><td>Enabled</td><td class='mono'>--</td><td>never logged on</td></tr><tr><td class='mono'>dpark</td><td>Enabled</td><td class='mono'>--</td><td>never logged on</td></tr><tr><td class='mono'>etran</td><td>Enabled</td><td class='mono'>--</td><td>never logged on</td></tr><tr><td class='mono'>sokafor</td><td>Enabled</td><td class='mono'>--</td><td>never logged on</td></tr><tr><td class='mono'>kwhite</td><td>Enabled</td><td class='mono'>--</td><td>never logged on</td></tr><tr><td class='mono'>jchen</td><td>Enabled</td><td class='mono'>2026-09-13T17:07:35Z</td><td>--</td></tr><tr><td class='mono'>svc-backup</td><td>Disabled</td><td class='mono'>--</td><td>--</td></tr><tr><td class='mono'>nmills</td><td>Enabled</td><td class='mono'>2026-09-13T17:07:41Z</td><td>--</td></tr><tr><td class='mono'>lnguyen</td><td>Enabled</td><td class='mono'>2026-09-13T17:58:41Z</td><td>--</td></tr><tr><td class='mono'>pnatarajan</td><td>Enabled</td><td class='mono'>--</td><td>never logged on</td></tr><tr><td class='mono'>rhayes</td><td>Disabled</td><td class='mono'>--</td><td>--</td></tr></tbody></table>
+    </div>
+
+    <div class="subsec">
+      <h3>5.4 File shares &mdash; patient-adjacent data outside the EHR</h3>
+      <table class="evidence-table"><thead><tr><th>Path</th><th class="right">sha256 (prefix)</th></tr></thead><tbody><tr><td class='mono'>/srv/samba/shares/frontoffice/front-desk-runbook.md</td><td class='mono right'>7dd63c1760702f0c</td></tr><tr><td class='mono'>/srv/samba/shares/frontoffice/intake-form-responses-2026-09.csv</td><td class='mono right'>a6c1726fc27f5c6c</td></tr><tr><td class='mono'>/srv/samba/shares/clinical/scribe-pilot-notes.txt</td><td class='mono right'>8982985c0de0bc71</td></tr><tr><td class='mono'>/srv/samba/shares/clinical/patient-schedule-export-2026-09.csv</td><td class='mono right'>055a8ca93a07eccb</td></tr><tr><td class='mono'>/srv/samba/shares/clinical/insurance-verification-2026-09.csv</td><td class='mono right'>425f71091bc9d3b4</td></tr><tr><td class='mono'>/srv/samba/shares/it/backup-runbook.md</td><td class='mono right'>7c40790bed9cf510</td></tr></tbody></table>
+    </div>
+
+    <div class="subsec">
+      <h3>5.5 Endpoint exposure</h3>
+      <table class="evidence-table"><thead><tr><th>Endpoint</th><th>Local copy</th><th class="right">sha256 (prefix)</th></tr></thead>
+      <tbody><tr><td><strong>ws-clinical-01</strong><span class='sub'>Clinical workstation</span></td><td class='mono'>insurance-verification-2026-09.csv <span class='eqmark'>= share copy</span></td><td class='mono right'>425f71091bc9d3b4</td></tr><tr><td><strong>ws-clinical-01</strong><span class='sub'>Clinical workstation</span></td><td class='mono'>patient-schedule-export-2026-09.csv <span class='eqmark'>= share copy</span></td><td class='mono right'>055a8ca93a07eccb</td></tr><tr><td><strong>fd-frontdesk-01</strong><span class='sub'>Front office workstation</span></td><td class='mono'>front-desk-runbook.md <span class='eqmark'>= share copy</span></td><td class='mono right'>7dd63c1760702f0c</td></tr><tr><td><strong>fd-frontdesk-01</strong><span class='sub'>Front office workstation</span></td><td class='mono'>intake-form-responses-2026-09.csv <span class='eqmark'>= share copy</span></td><td class='mono right'>a6c1726fc27f5c6c</td></tr><tr><td><strong>msp-jump-01</strong><span class='sub'>MSP admin jump box</span></td><td class='mono'>backup-runbook.md <span class='eqmark'>= share copy</span></td><td class='mono right'>7c40790bed9cf510</td></tr><tr><td><strong>msp-jump-01</strong><span class='sub'>MSP admin jump box</span></td><td class='mono'>front-desk-runbook.md <span class='eqmark'>= share copy</span></td><td class='mono right'>7dd63c1760702f0c</td></tr><tr><td><strong>msp-jump-01</strong><span class='sub'>MSP admin jump box</span></td><td class='mono'>intake-form-responses-2026-09.csv <span class='eqmark'>= share copy</span></td><td class='mono right'>a6c1726fc27f5c6c</td></tr></tbody></table>
+    </div>
+
+    <div class="subsec">
+      <h3>5.6 Supply chain &mdash; Bumblebee scan (complete)</h3>
+      <table class="evidence-table"><thead><tr><th>Severity</th><th>Package</th><th>Ecosystem</th><th>Catalog</th></tr></thead>
+      <tbody><tr><td class='mono hot'>HIGH</td><td class='mono'>node-ipc@10.1.1</td><td>npm</td><td>node-ipc (May 2026 credential stealer compromise)</td></tr></tbody></table>
+    </div>
+
+    <div class="subsec">
+      <h3>5.7 EHR surface</h3>
+      <table class="evidence-table">
+        <thead><tr><th>Signal</th><th class="right">Value</th></tr></thead>
+        <tbody>
+          <tr><td>Portal health</td><td class="mono right">ok</td></tr>
+          <tr><td>Public intake submissions (all time)</td><td class="mono right">1</td></tr>
+          <tr><td>Scribe transmission events (all time)</td><td class="mono right">2</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="sec-short">
+    <h2><span class="secnum">6</span>Limitations and attestation</h2>
+    <dl class="limits">
+      <div class="limit"><dt>6.1</dt><dd><strong>No PHI.</strong> Synthetic lab data only. No real patient information is collected, stored, or shared in this packet.</dd></div>
+      <div class="limit"><dt>6.2</dt><dd><strong>Qualification.</strong> A review aid; does not replace counsel, insurer, MSP, a qualified assessor, or the official HHS/ONC SRA Tool. Not legal advice; not a breach determination.</dd></div>
+      <div class="limit"><dt>6.3</dt><dd><strong>Method.</strong> Metadata-only collection from the synthetic lab: directory service queries, share inventories, hashes, auth audit logs, and a read-only package exposure scan.</dd></div>
+    </dl>
+    <div class="stamp">
+      <span>Generated 13 Sep 2026, 20:13 UTC</span>
+      <span>Snapshot 2026-09-13T18:57:14Z</span>
+      <span>velari.practice-snapshot/0.2</span>
+    </div>
+    <div class="attestation">
+      <span>Prepared by Velari &middot; collect_practice_evidence.py</span>
+      <span class="sig">Reviewed by ______________________&nbsp;&nbsp;Date ____________</span>
+    </div>
+  </section>
+
+</div>
+</body>
+</html>

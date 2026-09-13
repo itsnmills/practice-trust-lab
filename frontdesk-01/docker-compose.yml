@@ -1,0 +1,31 @@
+services:
+  workstation:
+    build: ../endpoint
+    container_name: fd-frontdesk-01
+    hostname: fd-frontdesk-01
+    domainname: millslab.internal
+    restart: unless-stopped
+    cap_add:
+      - SYS_ADMIN
+    environment:
+      ENDPOINT_NAME: fd-frontdesk-01
+      ENDPOINT_ROLE: Front office workstation
+      SYNC_USER: lnguyen
+      SYNC_PASS: ${TECH_PASS}
+      SYNC_SHARES: FrontOfficeShare
+      SYNC_PATTERN: "*"
+      SAMBA_ADMIN_PASS: ${SAMBA_ADMIN_PASS}
+    dns:
+      - 172.31.13.10
+    volumes:
+      - ./home:/home/staff
+      - ./logs:/var/log/endpoint
+      - fd-samba-data:/var/lib/samba
+    networks:
+      mills-lab:
+        ipv4_address: 172.31.13.22
+volumes:
+  fd-samba-data:
+networks:
+  mills-lab:
+    external: true

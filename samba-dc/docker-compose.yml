@@ -1,0 +1,38 @@
+services:
+  dc:
+    build: .
+    image: practice-lab-dc:latest
+    container_name: samba-dc
+    hostname: dc1
+    domainname: millslab.internal
+    restart: unless-stopped
+    cap_add:
+      - SYS_ADMIN
+    environment:
+      REALM: MILLSLAB.INTERNAL
+      DOMAIN: MILLSLAB
+      SAMBA_ADMIN_PASS: ${SAMBA_ADMIN_PASS}
+    volumes:
+      - samba-data:/var/lib/samba
+      - samba-etc:/etc/samba
+      - mills-lab-shares:/srv/samba/shares
+    ports:
+      - "${LAB_BIND_IP:-127.0.0.1}:389:389/tcp"
+      - "${LAB_BIND_IP:-127.0.0.1}:389:389/udp"
+      - "${LAB_BIND_IP:-127.0.0.1}:636:636/tcp"
+      - "${LAB_BIND_IP:-127.0.0.1}:88:88/tcp"
+      - "${LAB_BIND_IP:-127.0.0.1}:88:88/udp"
+      - "${LAB_BIND_IP:-127.0.0.1}:464:464/tcp"
+      - "${LAB_BIND_IP:-127.0.0.1}:464:464/udp"
+      - "${LAB_BIND_IP:-127.0.0.1}:3268:3268/tcp"
+    networks:
+      mills-lab:
+        ipv4_address: 172.31.13.10
+volumes:
+  samba-data:
+  samba-etc:
+  mills-lab-shares:
+    external: true
+networks:
+  mills-lab:
+    external: true

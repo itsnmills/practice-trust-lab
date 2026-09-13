@@ -1,0 +1,31 @@
+services:
+  workstation:
+    build: ../endpoint
+    container_name: msp-jump-01
+    hostname: msp-jump-01
+    domainname: millslab.internal
+    restart: unless-stopped
+    cap_add:
+      - SYS_ADMIN
+    environment:
+      ENDPOINT_NAME: msp-jump-01
+      ENDPOINT_ROLE: MSP admin jump box
+      SYNC_USER: nmills
+      SYNC_PASS: ${TECH_PASS}
+      SYNC_SHARES: ITShare FrontOfficeShare
+      SYNC_PATTERN: "*"
+      SAMBA_ADMIN_PASS: ${SAMBA_ADMIN_PASS}
+    dns:
+      - 172.31.13.10
+    volumes:
+      - ./home:/home/staff
+      - ./logs:/var/log/endpoint
+      - msp-samba-data:/var/lib/samba
+    networks:
+      mills-lab:
+        ipv4_address: 172.31.13.23
+volumes:
+  msp-samba-data:
+networks:
+  mills-lab:
+    external: true

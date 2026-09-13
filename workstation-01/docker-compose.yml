@@ -1,0 +1,31 @@
+services:
+  workstation:
+    build: ../endpoint
+    container_name: ws-clinical-01
+    hostname: ws-clinical-01
+    domainname: millslab.internal
+    restart: unless-stopped
+    cap_add:
+      - SYS_ADMIN
+    environment:
+      ENDPOINT_NAME: ws-clinical-01
+      ENDPOINT_ROLE: Clinical workstation
+      SYNC_USER: jchen
+      SYNC_PASS: ${TECH_PASS}
+      SYNC_SHARES: ClinicalShare
+      SYNC_PATTERN: "*.csv"
+      SAMBA_ADMIN_PASS: ${SAMBA_ADMIN_PASS}
+    dns:
+      - 172.31.13.10
+    volumes:
+      - ./home:/home/staff
+      - ./logs:/var/log/endpoint
+      - ws-samba-data:/var/lib/samba
+    networks:
+      mills-lab:
+        ipv4_address: 172.31.13.21
+volumes:
+  ws-samba-data:
+networks:
+  mills-lab:
+    external: true

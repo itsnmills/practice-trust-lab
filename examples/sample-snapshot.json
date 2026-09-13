@@ -1,0 +1,583 @@
+{
+  "collector": "collect_practice_evidence.py",
+  "schema": "velari.practice-snapshot/0.2",
+  "collected_at": "2026-09-13T18:57:14Z",
+  "lab": "millslab.internal (synthetic)",
+  "containers": [
+    {
+      "name": "msp-jump-01",
+      "status": "Up 58 minutes",
+      "ports": ""
+    },
+    {
+      "name": "fd-frontdesk-01",
+      "status": "Up 58 minutes",
+      "ports": ""
+    },
+    {
+      "name": "ws-clinical-01",
+      "status": "Up 58 minutes",
+      "ports": ""
+    },
+    {
+      "name": "clinic-ehr",
+      "status": "Up 2 hours",
+      "ports": "127.0.0.1:8095->8095/tcp"
+    },
+    {
+      "name": "samba-dc",
+      "status": "Up 2 hours",
+      "ports": "127.0.0.1:88->88/tcp, 127.0.0.1:88->88/udp, 127.0.0.1:389->389/tcp, 127.0.0.1:389->389/udp, 100."
+    },
+    {
+      "name": "osticket-web-1",
+      "status": "Up 4 weeks",
+      "ports": "127.0.0.1:8080->80/tcp"
+    },
+    {
+      "name": "osticket-db-1",
+      "status": "Up 4 weeks",
+      "ports": "3306/tcp"
+    }
+  ],
+  "identity": {
+    "password_policy": {
+      "Password complexity": "on",
+      "Store plaintext passwords": "off",
+      "Password history length": "24",
+      "Minimum password length": "10",
+      "Minimum password age (days)": "0",
+      "Maximum password age (days)": "42",
+      "Account lockout duration (mins)": "15",
+      "Account lockout threshold (attempts)": "5",
+      "Reset account lockout after (mins)": "10"
+    },
+    "users": [
+      {
+        "sam": "malvarez",
+        "enabled": true,
+        "last_logon": null,
+        "stale": false,
+        "never_logged_on": true
+      },
+      {
+        "sam": "aruiz",
+        "enabled": true,
+        "last_logon": null,
+        "stale": false,
+        "never_logged_on": true
+      },
+      {
+        "sam": "dpark",
+        "enabled": true,
+        "last_logon": null,
+        "stale": false,
+        "never_logged_on": true
+      },
+      {
+        "sam": "etran",
+        "enabled": true,
+        "last_logon": null,
+        "stale": false,
+        "never_logged_on": true
+      },
+      {
+        "sam": "sokafor",
+        "enabled": true,
+        "last_logon": null,
+        "stale": false,
+        "never_logged_on": true
+      },
+      {
+        "sam": "kwhite",
+        "enabled": true,
+        "last_logon": null,
+        "stale": false,
+        "never_logged_on": true
+      },
+      {
+        "sam": "jchen",
+        "enabled": true,
+        "last_logon": "2026-09-13T17:07:35Z",
+        "stale": false,
+        "never_logged_on": false
+      },
+      {
+        "sam": "svc-backup",
+        "enabled": false,
+        "last_logon": null,
+        "stale": false,
+        "never_logged_on": false
+      },
+      {
+        "sam": "nmills",
+        "enabled": true,
+        "last_logon": "2026-09-13T17:07:41Z",
+        "stale": false,
+        "never_logged_on": false
+      },
+      {
+        "sam": "lnguyen",
+        "enabled": true,
+        "last_logon": "2026-09-13T17:58:41Z",
+        "stale": false,
+        "never_logged_on": false
+      },
+      {
+        "sam": "pnatarajan",
+        "enabled": true,
+        "last_logon": null,
+        "stale": false,
+        "never_logged_on": true
+      },
+      {
+        "sam": "rhayes",
+        "enabled": false,
+        "last_logon": null,
+        "stale": false,
+        "never_logged_on": false
+      }
+    ],
+    "privileged_groups": {
+      "Domain Admins": [
+        "Administrator"
+      ],
+      "Enterprise Admins": [
+        "Administrator"
+      ],
+      "SG-IT": [
+        "nmills"
+      ]
+    },
+    "findings": [
+      {
+        "severity": "low",
+        "detail": "malvarez: enabled account has never logged on"
+      },
+      {
+        "severity": "low",
+        "detail": "aruiz: enabled account has never logged on"
+      },
+      {
+        "severity": "low",
+        "detail": "dpark: enabled account has never logged on"
+      },
+      {
+        "severity": "low",
+        "detail": "etran: enabled account has never logged on"
+      },
+      {
+        "severity": "low",
+        "detail": "sokafor: enabled account has never logged on"
+      },
+      {
+        "severity": "low",
+        "detail": "kwhite: enabled account has never logged on"
+      },
+      {
+        "severity": "info",
+        "detail": "svc-backup: disabled account present (verify it is required)"
+      },
+      {
+        "severity": "low",
+        "detail": "pnatarajan: enabled account has never logged on"
+      },
+      {
+        "severity": "info",
+        "detail": "rhayes: disabled account present (verify it is required)"
+      },
+      {
+        "severity": "medium",
+        "detail": "SG-IT membership = local admin equivalent; confirm business need and MFA path"
+      }
+    ]
+  },
+  "shares": {
+    "shares": [
+      {
+        "name": "ClinicalShare",
+        "path": "/srv/samba/shares/clinical",
+        "read only": "No",
+        "browseable": "Yes",
+        "valid users": "@DL-ClinicalShare-RW",
+        "force group": "DL-ClinicalShare-RW",
+        "create mask": "0660",
+        "directory mask": "0770"
+      },
+      {
+        "name": "FrontOfficeShare",
+        "path": "/srv/samba/shares/frontoffice",
+        "read only": "No",
+        "browseable": "Yes",
+        "valid users": "@SG-FrontOffice @SG-IT",
+        "force group": "SG-FrontOffice",
+        "create mask": "0660",
+        "directory mask": "0770"
+      },
+      {
+        "name": "ITShare",
+        "path": "/srv/samba/shares/it",
+        "read only": "No",
+        "browseable": "Yes",
+        "valid users": "@SG-IT",
+        "force group": "SG-IT",
+        "create mask": "0660",
+        "directory mask": "0770"
+      }
+    ],
+    "files": [
+      {
+        "path": "/srv/samba/shares/frontoffice/front-desk-runbook.md",
+        "sha256_16": "7dd63c1760702f0c"
+      },
+      {
+        "path": "/srv/samba/shares/frontoffice/intake-form-responses-2026-09.csv",
+        "sha256_16": "a6c1726fc27f5c6c"
+      },
+      {
+        "path": "/srv/samba/shares/clinical/scribe-pilot-notes.txt",
+        "sha256_16": "8982985c0de0bc71"
+      },
+      {
+        "path": "/srv/samba/shares/clinical/patient-schedule-export-2026-09.csv",
+        "sha256_16": "055a8ca93a07eccb"
+      },
+      {
+        "path": "/srv/samba/shares/clinical/insurance-verification-2026-09.csv",
+        "sha256_16": "425f71091bc9d3b4"
+      },
+      {
+        "path": "/srv/samba/shares/it/backup-runbook.md",
+        "sha256_16": "7c40790bed9cf510"
+      }
+    ],
+    "findings": [
+      {
+        "severity": "high",
+        "detail": "patient-adjacent data on file share: /srv/samba/shares/frontoffice/intake-form-responses-2026-09.csv"
+      },
+      {
+        "severity": "high",
+        "detail": "patient-adjacent data on file share: /srv/samba/shares/clinical/patient-schedule-export-2026-09.csv"
+      },
+      {
+        "severity": "high",
+        "detail": "patient-adjacent data on file share: /srv/samba/shares/clinical/insurance-verification-2026-09.csv"
+      }
+    ]
+  },
+  "auth": {
+    "window_hours": 24,
+    "success": 348,
+    "failures": 20,
+    "by_user": {
+      "DC1$": {
+        "success": 319,
+        "fail": 0
+      },
+      "Administrator@MILLSLAB.INTERNAL": {
+        "success": 6,
+        "fail": 6
+      },
+      "WS-CLINICAL-01$@MILLSLAB.INTERNAL": {
+        "success": 8,
+        "fail": 8
+      },
+      "WS-CLINICAL-01$": {
+        "success": 5,
+        "fail": 0
+      },
+      "FD-FRONTDESK-01$@MILLSLAB.INTERNAL": {
+        "success": 3,
+        "fail": 3
+      },
+      "FD-FRONTDESK-01$": {
+        "success": 2,
+        "fail": 0
+      },
+      "MSP-JUMP-01$@MILLSLAB.INTERNAL": {
+        "success": 3,
+        "fail": 3
+      },
+      "MSP-JUMP-01$": {
+        "success": 2,
+        "fail": 0
+      }
+    },
+    "failure_reasons": {
+      "NT_STATUS_PROTOCOL_UNREACHABLE": 20
+    },
+    "findings": [
+      {
+        "severity": "medium",
+        "detail": "20 auth failures in last 24h; check lockout source"
+      },
+      {
+        "severity": "low",
+        "detail": "non-password auth failure observed: NT_STATUS_PROTOCOL_UNREACHABLE"
+      }
+    ]
+  },
+  "ehr": {
+    "health": {
+      "status": "ok"
+    },
+    "events": {
+      "service_start": 1,
+      "page_view": 3,
+      "intake_submitted": 1,
+      "scribe_transmission": 2
+    },
+    "scribe_transmissions": 2,
+    "intake_submissions": 1,
+    "findings": [
+      {
+        "severity": "high",
+        "detail": "2 scribe transmission events; verify signed BAA per vendor"
+      },
+      {
+        "severity": "medium",
+        "detail": "1 public web intake submission; confirm TLS + retention + access control",
+        "ref_key": "ehr-intake"
+      }
+    ]
+  },
+  "endpoints": {
+    "hosts": [
+      {
+        "name": "ws-clinical-01",
+        "role": "Clinical workstation",
+        "local_copies": [
+          {
+            "file": "insurance-verification-2026-09.csv",
+            "sha256_16": "425f71091bc9d3b4",
+            "readable": true
+          },
+          {
+            "file": "patient-schedule-export-2026-09.csv",
+            "sha256_16": "055a8ca93a07eccb",
+            "readable": true
+          }
+        ],
+        "activity": {
+          "share_sync": 21,
+          "endpoint_start": 1
+        }
+      },
+      {
+        "name": "fd-frontdesk-01",
+        "role": "Front office workstation",
+        "local_copies": [
+          {
+            "file": "front-desk-runbook.md",
+            "sha256_16": "7dd63c1760702f0c",
+            "readable": true
+          },
+          {
+            "file": "intake-form-responses-2026-09.csv",
+            "sha256_16": "a6c1726fc27f5c6c",
+            "readable": true
+          }
+        ],
+        "activity": {
+          "endpoint_start": 1,
+          "share_sync": 12
+        }
+      },
+      {
+        "name": "msp-jump-01",
+        "role": "MSP admin jump box",
+        "local_copies": [
+          {
+            "file": "backup-runbook.md",
+            "sha256_16": "7c40790bed9cf510",
+            "readable": true
+          },
+          {
+            "file": "front-desk-runbook.md",
+            "sha256_16": "7dd63c1760702f0c",
+            "readable": true
+          },
+          {
+            "file": "intake-form-responses-2026-09.csv",
+            "sha256_16": "a6c1726fc27f5c6c",
+            "readable": true
+          }
+        ],
+        "activity": {
+          "endpoint_start": 1,
+          "share_sync": 12
+        }
+      }
+    ],
+    "findings": [
+      {
+        "severity": "high",
+        "detail": "ws-clinical-01 (Clinical workstation): 2 patient-adjacent files on local desktop",
+        "ref_key": "endpoint-ws-clinical-01"
+      },
+      {
+        "severity": "high",
+        "detail": "fd-frontdesk-01 (Front office workstation): 1 patient-adjacent file on local desktop",
+        "ref_key": "endpoint-fd-frontdesk-01"
+      },
+      {
+        "severity": "high",
+        "detail": "msp-jump-01 (MSP admin jump box): 1 patient-adjacent file on local desktop",
+        "ref_key": "endpoint-msp-jump-01"
+      }
+    ]
+  },
+  "supply_chain": {
+    "scanner": "bumblebee",
+    "status": "complete",
+    "findings": [
+      {
+        "severity": "high",
+        "detail": "Known-compromised package node-ipc@10.1.1 (npm) in frontdesk-01/home/Desktop/Downloads/billing-helper",
+        "package": "node-ipc",
+        "version": "10.1.1",
+        "ecosystem": "npm",
+        "catalog": "node-ipc (May 2026 credential stealer compromise)",
+        "project": "frontdesk-01/home/Desktop/Downloads/billing-helper",
+        "source_file": "frontdesk-01/home/Desktop/Downloads/billing-helper/package-lock.json"
+      }
+    ],
+    "detail": null
+  },
+  "findings": [
+    {
+      "severity": "high",
+      "detail": "patient-adjacent data on file share: /srv/samba/shares/frontoffice/intake-form-responses-2026-09.csv",
+      "section": "shares"
+    },
+    {
+      "severity": "high",
+      "detail": "patient-adjacent data on file share: /srv/samba/shares/clinical/patient-schedule-export-2026-09.csv",
+      "section": "shares"
+    },
+    {
+      "severity": "high",
+      "detail": "patient-adjacent data on file share: /srv/samba/shares/clinical/insurance-verification-2026-09.csv",
+      "section": "shares"
+    },
+    {
+      "severity": "high",
+      "detail": "2 scribe transmission events; verify signed BAA per vendor",
+      "section": "ehr"
+    },
+    {
+      "severity": "high",
+      "detail": "ws-clinical-01 (Clinical workstation): 2 patient-adjacent files on local desktop",
+      "ref_key": "endpoint-ws-clinical-01",
+      "section": "endpoints"
+    },
+    {
+      "severity": "high",
+      "detail": "fd-frontdesk-01 (Front office workstation): 1 patient-adjacent file on local desktop",
+      "ref_key": "endpoint-fd-frontdesk-01",
+      "section": "endpoints"
+    },
+    {
+      "severity": "high",
+      "detail": "msp-jump-01 (MSP admin jump box): 1 patient-adjacent file on local desktop",
+      "ref_key": "endpoint-msp-jump-01",
+      "section": "endpoints"
+    },
+    {
+      "severity": "high",
+      "detail": "Known-compromised package node-ipc@10.1.1 (npm) in frontdesk-01/home/Desktop/Downloads/billing-helper",
+      "package": "node-ipc",
+      "version": "10.1.1",
+      "ecosystem": "npm",
+      "catalog": "node-ipc (May 2026 credential stealer compromise)",
+      "project": "frontdesk-01/home/Desktop/Downloads/billing-helper",
+      "source_file": "frontdesk-01/home/Desktop/Downloads/billing-helper/package-lock.json",
+      "section": "supply_chain"
+    },
+    {
+      "severity": "medium",
+      "detail": "SG-IT membership = local admin equivalent; confirm business need and MFA path",
+      "section": "identity"
+    },
+    {
+      "severity": "medium",
+      "detail": "20 auth failures in last 24h; check lockout source",
+      "section": "auth"
+    },
+    {
+      "severity": "medium",
+      "detail": "1 public web intake submission; confirm TLS + retention + access control",
+      "ref_key": "ehr-intake",
+      "section": "ehr"
+    },
+    {
+      "severity": "low",
+      "detail": "malvarez: enabled account has never logged on",
+      "section": "identity"
+    },
+    {
+      "severity": "low",
+      "detail": "aruiz: enabled account has never logged on",
+      "section": "identity"
+    },
+    {
+      "severity": "low",
+      "detail": "dpark: enabled account has never logged on",
+      "section": "identity"
+    },
+    {
+      "severity": "low",
+      "detail": "etran: enabled account has never logged on",
+      "section": "identity"
+    },
+    {
+      "severity": "low",
+      "detail": "sokafor: enabled account has never logged on",
+      "section": "identity"
+    },
+    {
+      "severity": "low",
+      "detail": "kwhite: enabled account has never logged on",
+      "section": "identity"
+    },
+    {
+      "severity": "low",
+      "detail": "pnatarajan: enabled account has never logged on",
+      "section": "identity"
+    },
+    {
+      "severity": "low",
+      "detail": "non-password auth failure observed: NT_STATUS_PROTOCOL_UNREACHABLE",
+      "section": "auth"
+    },
+    {
+      "severity": "info",
+      "detail": "svc-backup: disabled account present (verify it is required)",
+      "section": "identity"
+    },
+    {
+      "severity": "info",
+      "detail": "rhayes: disabled account present (verify it is required)",
+      "section": "identity"
+    }
+  ],
+  "finding_counts": {
+    "high": 8,
+    "medium": 3,
+    "low": 8,
+    "info": 2
+  },
+  "drift": {
+    "compared_to": "2026-09-13T18:56:15Z",
+    "status": "compared",
+    "user_changes": [],
+    "group_changes": [],
+    "share_changes": [],
+    "endpoint_changes": [],
+    "findings_new": [],
+    "findings_resolved": [],
+    "counter_deltas": {},
+    "compared_to_path": null
+  }
+}

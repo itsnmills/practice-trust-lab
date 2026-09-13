@@ -1,0 +1,17 @@
+services:
+  ehr:
+    build: .
+    container_name: clinic-ehr
+    restart: unless-stopped
+    environment:
+      DATA_DIR: /data
+      PORT: "8095"
+    volumes:
+      - ./data:/data
+    ports:
+      - "${LAB_BIND_IP:-127.0.0.1}:8095:8095"
+    networks:
+      - mills-lab
+networks:
+  mills-lab:
+    external: true
