@@ -1,0 +1,68 @@
+name: Lab evidence pass (HEAVY, manual)
+
+# Heavy, manual-only workflow. It builds and starts the whole synthetic clinic
+# on the runner (Samba AD, three domain-joined endpoints, mock EHR), waits for
+# the domain join and sync loops, runs one evidence pass, verifies the hash
+# chain, and uploads the packet. Expect roughly 5-10 minutes, plus image
+# builds on a cold cache. Never wire this to push/pull_request.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: lab-evidence
+  cancel-in-progress: false
+
+jobs:
+  lab-evidence:
+    name: Full lab -> evidence packet (heavy, manual)
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Confirm Docker Compose v2
+        run: docker compose version
+      - name: Bootstrap the lab (network, credentials, domain, shares, endpoints)
+        run: ./scripts/bootstrap.sh
+      - name: Seed the shadow-IT scenario
+        run: ./scripts/seed-scenario.sh
+      - name: Collect a snapshot and render the packet
+        run: ./scripts/run-evidence.sh
+      - name: Verify the ledger hash chain
+        run: python3 evidence/collect_practice_evidence.py --verify-ledger
+      - name: Summarize findings
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+
+          ledger = Path("evidence/ledger.jsonl").read_text(encoding="utf-8").splitlines()
+          last = json.loads(ledger[-1])
+          print("last entry:", last.get("json"))
+          print("findings:", last.get("findings"))
+          print("snapshot sha256:", last.get("snapshot_sha256"))
+          PY
+      - name: Upload evidence packet
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lab-evidence-packet
+          path: |
+            evidence/artifacts/**
+            evidence/ledger.jsonl
+            evidence/latest.html
+          if-no-files-found: warn
+          retention-days: 30
+      - name: Tear down the lab
+        if: always()
+        run: |
+          for d in workstation-01 frontdesk-01 msp-jump-01 clinic-ehr samba-dc; do
+            (cd "$d" && docker compose down -v --remove-orphans) || true
+          done
+          docker network rm mills-lab || true
+          docker volume rm mills-lab-shares || true
