@@ -1,8 +1,19 @@
 #!/bin/bash
 # Provision the domain on first run, then run samba in the foreground.
-set -e
+set -euo pipefail
+
+# The lab env file is mounted as a read-only secret by compose, so passwords
+# are not part of the container environment (`docker inspect`).
+if [ -r /run/secrets/lab_env ]; then
+  set -a
+  # shellcheck disable=SC1091
+  . /run/secrets/lab_env
+  set +a
+fi
+
 REALM="${REALM:-MILLSLAB.INTERNAL}"
 DOMAIN="${DOMAIN:-MILLSLAB}"
+SAMBA_ADMIN_PASS="${SAMBA_ADMIN_PASS:?SAMBA_ADMIN_PASS is required (env or /run/secrets/lab_env)}"
 
 if [ ! -f /var/lib/samba/private/sam.ldb ]; then
   echo "[entrypoint] first run: provisioning $REALM"
