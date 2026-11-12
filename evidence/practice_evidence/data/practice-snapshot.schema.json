@@ -1,0 +1,358 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Velari practice snapshot",
+  "description": "Metadata-only, synthetic practice-lab evidence snapshot. Version policy: MAJOR.MINOR (see docs/SCHEMA.md). Additive MINOR changes may add optional fields and sections; unknown extra fields are tolerated by design.",
+  "type": "object",
+  "required": [
+    "collector",
+    "schema",
+    "collected_at",
+    "lab",
+    "containers",
+    "identity",
+    "shares",
+    "auth",
+    "ehr",
+    "endpoints",
+    "supply_chain",
+    "findings",
+    "finding_counts",
+    "drift"
+  ],
+  "properties": {
+    "collector": {
+      "type": "string",
+      "description": "Entry point that produced the snapshot."
+    },
+    "schema": {
+      "type": "string",
+      "pattern": "^velari\\.practice-snapshot/[0-9]+\\.[0-9]+(\\.[0-9]+)?$",
+      "description": "Schema version, e.g. velari.practice-snapshot/0.3."
+    },
+    "collected_at": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$",
+      "description": "UTC collection time, second precision."
+    },
+    "lab": {
+      "type": "string",
+      "description": "Human-readable lab label. Synthetic by contract."
+    },
+    "containers": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/container"
+      }
+    },
+    "identity": {
+      "$ref": "#/$defs/identity"
+    },
+    "shares": {
+      "$ref": "#/$defs/shares"
+    },
+    "auth": {
+      "$ref": "#/$defs/auth"
+    },
+    "ehr": {
+      "$ref": "#/$defs/ehr"
+    },
+    "endpoints": {
+      "$ref": "#/$defs/endpoints"
+    },
+    "supply_chain": {
+      "$ref": "#/$defs/supply_chain"
+    },
+    "findings": {
+      "type": "array",
+      "description": "Merged findings, tagged with the section that produced them.",
+      "items": {
+        "$ref": "#/$defs/finding"
+      }
+    },
+    "finding_counts": {
+      "type": "object",
+      "description": "Counts keyed by severity.",
+      "additionalProperties": {
+        "type": "integer",
+        "minimum": 0
+      }
+    },
+    "drift": {
+      "$ref": "#/$defs/drift"
+    },
+    "section_errors": {
+      "type": "object",
+      "description": "Optional map of section name to the error that degraded that section.",
+      "additionalProperties": {"type": "string"}
+    },
+    "policy": {
+      "$ref": "#/$defs/extension_section"
+    },
+    "acls": {
+      "$ref": "#/$defs/extension_section"
+    },
+    "privilege": {
+      "$ref": "#/$defs/extension_section"
+    },
+    "hygiene": {
+      "$ref": "#/$defs/extension_section"
+    }
+  },
+  "additionalProperties": true,
+  "$defs": {
+    "container": {
+      "type": "object",
+      "required": ["name", "status", "ports"],
+      "properties": {
+        "name": {"type": "string"},
+        "status": {"type": "string"},
+        "ports": {"type": "string"}
+      },
+      "additionalProperties": true
+    },
+    "finding": {
+      "type": "object",
+      "required": ["severity", "detail"],
+      "properties": {
+        "severity": {"enum": ["high", "medium", "low", "info"]},
+        "detail": {"type": "string"},
+        "ref_key": {"type": "string"},
+        "rule_id": {
+          "type": "string",
+          "description": "Optional stable rule identifier added in 0.3."
+        },
+        "subject": {
+          "type": "string",
+          "description": "Optional subject (account, host, path) added in 0.3."
+        },
+        "section": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*$",
+          "description": "Present on merged top-level findings only."
+        }
+      },
+      "additionalProperties": true
+    },
+    "user": {
+      "type": "object",
+      "required": ["sam", "enabled", "last_logon", "stale", "never_logged_on"],
+      "properties": {
+        "sam": {"type": "string"},
+        "enabled": {"type": "boolean"},
+        "last_logon": {
+          "type": ["string", "null"],
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$"
+        },
+        "stale": {"type": "boolean"},
+        "never_logged_on": {"type": "boolean"}
+      },
+      "additionalProperties": true
+    },
+    "identity": {
+      "type": "object",
+      "required": ["password_policy", "users", "privileged_groups", "findings"],
+      "properties": {
+        "password_policy": {
+          "type": "object",
+          "additionalProperties": {"type": "string"}
+        },
+        "users": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/user"}
+        },
+        "privileged_groups": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "array",
+            "items": {"type": "string"}
+          }
+        },
+        "findings": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/finding"}
+        }
+      },
+      "additionalProperties": true
+    },
+    "share_entry": {
+      "type": "object",
+      "required": ["name"],
+      "properties": {
+        "name": {"type": "string"}
+      },
+      "additionalProperties": {"type": "string"}
+    },
+    "share_file": {
+      "type": "object",
+      "required": ["path", "sha256_16"],
+      "properties": {
+        "path": {"type": "string"},
+        "sha256_16": {
+          "type": ["string", "null"],
+          "pattern": "^[0-9a-f]{16}$"
+        }
+      },
+      "additionalProperties": true
+    },
+    "shares": {
+      "type": "object",
+      "required": ["shares", "files", "findings"],
+      "properties": {
+        "shares": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/share_entry"}
+        },
+        "files": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/share_file"}
+        },
+        "findings": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/finding"}
+        }
+      },
+      "additionalProperties": true
+    },
+    "auth": {
+      "type": "object",
+      "required": ["window_hours", "success", "failures", "by_user", "failure_reasons", "findings"],
+      "properties": {
+        "window_hours": {"type": "integer", "minimum": 0},
+        "success": {"type": "integer", "minimum": 0},
+        "failures": {"type": "integer", "minimum": 0},
+        "by_user": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "required": ["success", "fail"],
+            "properties": {
+              "success": {"type": "integer", "minimum": 0},
+              "fail": {"type": "integer", "minimum": 0}
+            },
+            "additionalProperties": true
+          }
+        },
+        "failure_reasons": {
+          "type": "object",
+          "additionalProperties": {"type": "integer", "minimum": 0}
+        },
+        "findings": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/finding"}
+        }
+      },
+      "additionalProperties": true
+    },
+    "ehr": {
+      "type": "object",
+      "required": ["health", "events", "scribe_transmissions", "intake_submissions", "findings"],
+      "properties": {
+        "health": {"type": "object", "additionalProperties": true},
+        "events": {
+          "type": "object",
+          "additionalProperties": {"type": "integer", "minimum": 0}
+        },
+        "scribe_transmissions": {"type": "integer", "minimum": 0},
+        "intake_submissions": {"type": "integer", "minimum": 0},
+        "findings": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/finding"}
+        }
+      },
+      "additionalProperties": true
+    },
+    "local_copy": {
+      "type": "object",
+      "required": ["file", "sha256_16", "readable"],
+      "properties": {
+        "file": {"type": "string"},
+        "sha256_16": {
+          "type": ["string", "null"],
+          "pattern": "^[0-9a-f]{16}$"
+        },
+        "readable": {"type": "boolean"}
+      },
+      "additionalProperties": true
+    },
+    "endpoint_host": {
+      "type": "object",
+      "required": ["name", "role", "local_copies", "activity"],
+      "properties": {
+        "name": {"type": "string"},
+        "role": {"type": "string"},
+        "local_copies": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/local_copy"}
+        },
+        "activity": {
+          "type": "object",
+          "additionalProperties": {"type": "integer", "minimum": 0}
+        }
+      },
+      "additionalProperties": true
+    },
+    "endpoints": {
+      "type": "object",
+      "required": ["hosts", "findings"],
+      "properties": {
+        "hosts": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/endpoint_host"}
+        },
+        "findings": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/finding"}
+        }
+      },
+      "additionalProperties": true
+    },
+    "supply_chain": {
+      "type": "object",
+      "required": ["scanner", "status", "findings"],
+      "properties": {
+        "scanner": {"type": "string"},
+        "status": {"enum": ["complete", "skipped", "error"]},
+        "detail": {"type": ["string", "null"]},
+        "findings": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/finding"}
+        }
+      },
+      "additionalProperties": true
+    },
+    "drift": {
+      "type": "object",
+      "required": [
+        "compared_to",
+        "status",
+        "user_changes",
+        "group_changes",
+        "share_changes",
+        "endpoint_changes",
+        "findings_new",
+        "findings_resolved",
+        "counter_deltas"
+      ],
+      "properties": {
+        "compared_to": {"type": ["string", "null"]},
+        "status": {"enum": ["baseline", "compared"]},
+        "user_changes": {"type": "array", "items": {"type": "string"}},
+        "group_changes": {"type": "array", "items": {"type": "string"}},
+        "share_changes": {"type": "array", "items": {"type": "string"}},
+        "endpoint_changes": {"type": "array", "items": {"type": "string"}},
+        "findings_new": {"type": "array", "items": {"type": "string"}},
+        "findings_resolved": {"type": "array", "items": {"type": "string"}},
+        "counter_deltas": {
+          "type": "object",
+          "additionalProperties": {"type": "integer"}
+        },
+        "compared_to_path": {"type": ["string", "null"]}
+      },
+      "additionalProperties": true
+    },
+    "extension_section": {
+      "type": ["object", "array"],
+      "description": "Optional section added by a newer MINOR version. Its internal shape is owned by the section module; the schema intentionally tolerates it so 0.3 readers can validate 0.4 snapshots."
+    }
+  }
+}
