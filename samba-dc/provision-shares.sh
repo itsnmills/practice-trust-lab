@@ -28,7 +28,6 @@ add_share() {
 	read only = No
 	browseable = Yes
 	valid users = $3
-	force group = $4
 	create mask = 0660
 	directory mask = 0770
 EOF
@@ -41,9 +40,16 @@ mkdir -p "$ROOT"/clinical "$ROOT"/frontoffice "$ROOT"/it
 # does not resolve to a gid here) and was hidden by `|| true`, leaving every share
 # directory world-readable (0755 root) with access gated only by smb.conf.
 
-add_share "ClinicalShare"     clinical     "@DL-ClinicalShare-RW" "DL-ClinicalShare-RW"
-add_share "FrontOfficeShare"  frontoffice  "@SG-FrontOffice @SG-IT" "SG-FrontOffice"
-add_share "ITShare"           it           "@SG-IT" "SG-IT"
+add_share "ClinicalShare"     clinical     "@DL-ClinicalShare-RW"
+add_share "FrontOfficeShare"  frontoffice  "@SG-FrontOffice @SG-IT"
+add_share "ITShare"           it           "@SG-IT"
+
+# Upgrade path: earlier versions wrote `force group = <group>` into every share.
+# Samba adds a forced group to every connecting user's token, which silently
+# overrides read-only NT ACL entries (an SG-IT user could write to
+# FrontOfficeShare). Access is now decided by `valid users` plus the NT ACLs
+# below, so remove the line from any share that still has it.
+sed -i '/^[[:space:]]*force group[[:space:]]*=/d' "$CONF"
 
 # --- Synthetic data -------------------------------------------------------
 seed() { # seed <path> <content-file-marker>
@@ -128,13 +134,9 @@ apply_acls() {
 }
 
 apply_acls "$ROOT/clinical"    DL-ClinicalShare-RW
-# SG-IT is granted read/write here on purpose, not read-only: the share's
-# `force group = SG-FrontOffice` adds that group to every connecting user's token,
-# so IT users get the front-office group's write access regardless of an IT:r entry
-# (verified live: an SG-IT user wrote to the share under an SG-IT read-only ACL).
-# Making IT genuinely read-only means dropping `force group` and relying on ACL
-# inheritance. The collector reports this as ACL-UNDOCUMENTED-WRITE.
-apply_acls "$ROOT/frontoffice" SG-FrontOffice SG-IT
+# IT may open and read front-office files for support but not change them. This
+# relies on there being no `force group` on the share (see the upgrade note above).
+apply_acls "$ROOT/frontoffice" SG-FrontOffice SG-IT:r
 apply_acls "$ROOT/it"          SG-IT
 
 # --- Reload samba ---------------------------------------------------------

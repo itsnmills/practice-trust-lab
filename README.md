@@ -76,8 +76,8 @@ To tear the lab down (safe to re-run; `--dry-run` shows what it would remove):
 ```
 
 `./scripts/verify-boundaries.sh` checks the access boundaries the lab claims (clinical
-users can read `ClinicalShare`, IT is denied it, temporary-password accounts cannot
-sign in) against the running lab and exits non-zero on any deviation.
+users can read `ClinicalShare`, IT is denied it, IT can read but not write
+`FrontOfficeShare`, temporary-password accounts cannot sign in) against the running lab and exits non-zero on any deviation.
 
 Generated runtime files (`samba-dc/.env`, `*/home`, `*/logs`, `clinic-ehr/data`)
 are left in place; delete them for a pristine tree.

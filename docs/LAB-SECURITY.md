@@ -26,7 +26,6 @@ The collector's own guarantees and limits are in
 | Anonymous LDAP/global-catalog listeners and a plaintext directory | `samba-dc` published ports | Realistic AD lab surface; the lab never claims LDAP hardening |
 | Endpoint working copies of clinical exports | sync loop in `endpoint/entrypoint.sh` | Endpoint-copy finding |
 | Single DC, no segmentation, no EDR/backup telemetry | whole lab | Stated out of scope in THREAT-MODEL.md |
-| IT (`SG-IT`) can write to `FrontOfficeShare` | `force group = SG-FrontOffice` in `samba-dc/provision-shares.sh` | Reported as `ACL-UNDOCUMENTED-WRITE`. Not intended, but not fixed: Samba adds the forced group to every user's token, so an `SG-IT` read-only ACL entry is overridden (verified live). Fixing it means dropping `force group` and relying on ACL inheritance. |
 
 The mock EHR also stores whatever synthetic names and reasons a visitor submits.
 Asking it to reject *real* patient data outright would break the intake demo, so
@@ -114,7 +113,8 @@ injection, concurrent writes, and error-leak checks.
   supports `--dry-run`, `--yes` and `--purge-data`.
 - `scripts/verify-boundaries.sh` exits non-zero unless the advertised access
   boundaries are true: a clinical user reads `ClinicalShare`, IT is denied there
-  with `NT_STATUS_ACCESS_DENIED` but reads `ITShare`, a temporary-password user
+  with `NT_STATUS_ACCESS_DENIED` but reads `ITShare`, IT reads `FrontOfficeShare` but is
+  denied writing there while still writing `ITShare` (the control), a temporary-password user
   fails with `NT_STATUS_PASSWORD_MUST_CHANGE`, anonymous SMB is denied, and no
   container config leaks a lab password.
 - `scripts/seed-scenario.sh` fails with a clear message if the front desk
@@ -171,7 +171,7 @@ injection, concurrent writes, and error-leak checks.
 
 ```bash
 ./scripts/bootstrap.sh                 # twice in a row: second run must also exit 0
-./scripts/verify-boundaries.sh         # 11 passed, 0 failed
+./scripts/verify-boundaries.sh         # 14 passed, 0 failed
 uv run --no-project --with pytest --with ruff sh -c 'ruff check . && pytest -q'
 ./scripts/teardown.sh --dry-run        # preview; no Docker calls
 ./scripts/teardown.sh --yes            # remove containers, network, volume

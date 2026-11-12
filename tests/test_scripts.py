@@ -111,3 +111,18 @@ def test_compose_files_keep_documented_container_names():
     for relative, marker in expected.items():
         text = (ROOT / relative).read_text(encoding="utf-8")
         assert marker in text, f"{relative} is missing {marker}"
+
+
+def test_shares_do_not_force_a_group_and_provisioning_strips_old_lines():
+    """`force group` puts a group in every user's token and defeats read-only ACL entries."""
+    text = (ROOT / "samba-dc" / "provision-shares.sh").read_text(encoding="utf-8")
+    template = text[text.index("add_share() {") : text.index("mkdir -p")]
+    assert "force group" not in template
+    assert "sed -i '/^[[:space:]]*force group[[:space:]]*=/d'" in text
+    assert 'apply_acls "$ROOT/frontoffice" SG-FrontOffice SG-IT:r' in text
+
+
+def test_boundary_script_probes_it_cannot_write_front_office():
+    text = (ROOT / "scripts" / "verify-boundaries.sh").read_text(encoding="utf-8")
+    for label in ("it_frontoffice_read", "it_frontoffice_write_deny", "it_itshare_write_allow"):
+        assert f"probe {label}" in text and f"{label})" in text, label
