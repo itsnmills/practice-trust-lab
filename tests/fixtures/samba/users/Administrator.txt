@@ -1,0 +1,16 @@
+dn: CN=Administrator,CN=Users,DC=millslab,DC=internal
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: user
+cn: Administrator
+name: Administrator
+sAMAccountName: Administrator
+description: Built-in account for administering the domain
+userAccountControl: 512
+accountExpires: 9223372036854775807
+lastLogon: 0
+lastLogonTimestamp: 0
+pwdLastSet: 134300448000000000
+memberOf: CN=Domain Admins,CN=Users,DC=millslab,DC=internal
+memberOf: CN=Enterprise Admins,CN=Users,DC=millslab,DC=internal

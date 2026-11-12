@@ -1,0 +1,10 @@
+Administrators
+Users
+Domain Admins
+Domain Users
+Domain Guests
+Enterprise Admins
+Schema Admins
+SG-IT
+SG-FrontOffice
+DL-ClinicalShare-RW

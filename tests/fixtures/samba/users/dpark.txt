@@ -1,0 +1,19 @@
+dn: CN=Dana Park,OU=Clinical,OU=Users,DC=millslab,DC=internal
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: user
+cn: Dana Park
+sn: Park
+givenName: Dana
+name: Dana Park
+sAMAccountName: dpark
+userPrincipalName: dpark@millslab.internal
+displayName: Dana Park
+description: Clinical staff (locum)
+userAccountControl: 512
+accountExpires: 9223372036854775807
+lastLogon: 134300440000000000
+lastLogonTimestamp: 134300448000000000
+pwdLastSet: 134300448000000000
+memberOf: CN=DL-ClinicalShare-RW,OU=Groups,DC=millslab,DC=internal

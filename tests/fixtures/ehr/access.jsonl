@@ -1,0 +1,7 @@
+{"event": "service_start", "ts": "2026-11-12T08:59:12Z", "version": "0.4.2"}
+{"event": "page_view", "ts": "2026-11-12T09:03:41Z", "path": "/intake"}
+{"event": "intake_submitted", "ts": "2026-11-12T09:04:02Z", "form": "new-patient-intake", "fields": 7}
+{"event": "page_view", "ts": "2026-11-12T09:10:15Z", "path": "/intake"}
+{"event": "scribe_transmission", "ts": "2026-11-12T09:12:33Z", "vendor": "scribeai-demo", "fields": 5}
+{"event": "page_view", "ts": "2026-11-12T09:18:50Z", "path": "/roster"}
+{"event": "scribe_transmission", "ts": "2026-11-12T09:26:08Z", "vendor": "notetaker-demo", "fields": 4}

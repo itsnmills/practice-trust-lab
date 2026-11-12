@@ -1,0 +1,14 @@
+dn: CN=krbtgt,CN=Users,DC=millslab,DC=internal
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: user
+cn: krbtgt
+name: krbtgt
+sAMAccountName: krbtgt
+description: Key Distribution Center Service Account
+userAccountControl: 514
+accountExpires: 9223372036854775807
+lastLogon: 0
+lastLogonTimestamp: 0
+pwdLastSet: 134379990000000000

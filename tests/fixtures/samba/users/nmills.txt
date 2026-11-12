@@ -1,0 +1,20 @@
+dn: CN=Noah Mills,OU=IT,OU=Users,DC=millslab,DC=internal
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: user
+cn: Noah Mills
+sn: Mills
+givenName: Noah
+name: Noah Mills
+sAMAccountName: nmills
+userPrincipalName: nmills@millslab.internal
+displayName: Noah Mills
+description: MSP engineer
+userAccountControl: 512
+accountExpires: 9223372036854775807
+lastLogon: 134369880000000000
+lastLogonTimestamp: 134369883000000000
+pwdLastSet: 134300448000000000
+memberOf: CN=SG-IT,OU=Groups,DC=millslab,DC=internal
+memberOf: CN=SG-FrontOffice,OU=Groups,DC=millslab,DC=internal

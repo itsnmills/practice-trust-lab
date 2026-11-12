@@ -1,0 +1,6 @@
+/srv/samba/shares/clinical/patient-schedule-export-2026-09.csv
+/srv/samba/shares/clinical/insurance-verification-2026-09.csv
+/srv/samba/shares/clinical/scribe-pilot-notes.txt
+/srv/samba/shares/frontoffice/intake-form-responses-2026-09.csv
+/srv/samba/shares/frontoffice/front-desk-runbook.md
+/srv/samba/shares/it/backup-runbook.md

@@ -1,0 +1,19 @@
+dn: CN=Maria Alvarez,OU=Clinical,OU=Users,DC=millslab,DC=internal
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: user
+cn: Maria Alvarez
+sn: Alvarez
+givenName: Maria
+name: Maria Alvarez
+sAMAccountName: malvarez
+userPrincipalName: malvarez@millslab.internal
+displayName: Maria Alvarez
+description: Clinical staff
+userAccountControl: 512
+accountExpires: 9223372036854775807
+lastLogon: 0
+lastLogonTimestamp: 0
+pwdLastSet: 134379990000000000
+memberOf: CN=DL-ClinicalShare-RW,OU=Groups,DC=millslab,DC=internal

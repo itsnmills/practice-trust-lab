@@ -1,0 +1,26 @@
+[2026/11/12 09:14:03.114512,  3] ../../source3/auth/auth_util.c:145(make_user_info_map)
+  Auth: [SMB2,(null)] user [MILLSLAB]\[jchen] at [Thu, 12 Nov 2026 09:14:03.114512 UTC] with [NTLMv2] status [NT_STATUS_OK] workstation [WS-CLINICAL-01] remote host [ipv4:172.31.13.21:50122] mapped to [MILLSLAB]\[jchen]. local host [ipv4:172.31.13.10:445]
+[2026/11/12 09:14:19.205113,  3] ../../source3/auth/auth_util.c:145(make_user_info_map)
+  Auth: [SMB2,(null)] user [MILLSLAB]\[jchen] at [Thu, 12 Nov 2026 09:14:19.205113 UTC] with [NTLMv2] status [NT_STATUS_OK] workstation [WS-CLINICAL-01] remote host [ipv4:172.31.13.21:50130] mapped to [MILLSLAB]\[jchen]. local host [ipv4:172.31.13.10:445]
+[2026/11/12 09:15:41.310552,  3] ../../source3/auth/auth_util.c:145(make_user_info_map)
+  Auth: [SMB2,(null)] user [MILLSLAB]\[jchen] at [Thu, 12 Nov 2026 09:15:41.310552 UTC] with [NTLMv2] status [NT_STATUS_OK] workstation [WS-CLINICAL-01] remote host [ipv4:172.31.13.21:50144] mapped to [MILLSLAB]\[jchen]. local host [ipv4:172.31.13.10:445]
+[2026/11/12 09:21:07.410998,  3] ../../source3/auth/auth_util.c:145(make_user_info_map)
+  Auth: [SMB2,(null)] user [MILLSLAB]\[nmills] at [Thu, 12 Nov 2026 09:21:07.410998 UTC] with [NTLMv2] status [NT_STATUS_OK] workstation [MSP-JUMP-01] remote host [ipv4:172.31.13.31:50211] mapped to [MILLSLAB]\[nmills]. local host [ipv4:172.31.13.10:445]
+[2026/11/12 09:22:18.511002,  3] ../../source3/auth/auth_util.c:145(make_user_info_map)
+  Auth: [SMB2,(null)] user [MILLSLAB]\[nmills] at [Thu, 12 Nov 2026 09:22:18.511002 UTC] with [NTLMv2] status [NT_STATUS_OK] workstation [MSP-JUMP-01] remote host [ipv4:172.31.13.31:50222] mapped to [MILLSLAB]\[nmills]. local host [ipv4:172.31.13.10:445]
+[2026/11/12 09:30:44.612003,  3] ../../source3/auth/auth_util.c:145(make_user_info_map)
+  Auth: [SMB2,(null)] user [MILLSLAB]\[dpark] at [Thu, 12 Nov 2026 09:30:44.612003 UTC] with [NTLMv2] status [NT_STATUS_OK] workstation [WS-CLINICAL-01] remote host [ipv4:172.31.13.21:50251] mapped to [MILLSLAB]\[dpark]. local host [ipv4:172.31.13.10:445]
+[2026/11/12 09:44:10.000001,  3] ../../source3/auth/auth_util.c:145(make_user_info_map)
+  Auth: [SMB2,(null)] user [MILLSLAB]\[nbruce] at [Thu, 12 Nov 2026 09:44:10.000001 UTC] with [NTLMv2] status [NT_STATUS_OK] workstation [MSP-JUMP-01] remote host [ipv4:172.31.13.31:50401] mapped to [MILLSLAB]\[nbruce]. local host [ipv4:172.31.13.10:445]
+[2026/11/12 09:45:22.000002,  3] ../../source3/auth/auth_util.c:145(make_user_info_map)
+  Auth: [SMB2,(null)] user [MILLSLAB]\[nbruce] at [Thu, 12 Nov 2026 09:45:22.000002 UTC] with [NTLMv2] status [NT_STATUS_OK] workstation [MSP-JUMP-01] remote host [ipv4:172.31.13.31:50402] mapped to [MILLSLAB]\[nbruce]. local host [ipv4:172.31.13.10:445]
+[2026/11/12 09:33:10.713554,  2] ../../source3/auth/auth_util.c:145(make_user_info_map)
+  Auth: [SMB2,(null)] user [MILLSLAB]\[svc-temp] at [Thu, 12 Nov 2026 09:33:10.713554 UTC] with [NTLMv2] status [NT_STATUS_WRONG_PASSWORD] workstation [FD-FRONTDESK-01] remote host [ipv4:172.31.13.22:50301] mapped to [MILLSLAB]\[svc-temp]. local host [ipv4:172.31.13.10:445]
+[2026/11/12 09:33:29.814001,  2] ../../source3/auth/auth_util.c:145(make_user_info_map)
+  Auth: [SMB2,(null)] user [MILLSLAB]\[svc-temp] at [Thu, 12 Nov 2026 09:33:29.814001 UTC] with [NTLMv2] status [NT_STATUS_WRONG_PASSWORD] workstation [FD-FRONTDESK-01] remote host [ipv4:172.31.13.22:50302] mapped to [MILLSLAB]\[svc-temp]. local host [ipv4:172.31.13.10:445]
+[2026/11/12 09:33:51.915117,  2] ../../source3/auth/auth_util.c:145(make_user_info_map)
+  Auth: [SMB2,(null)] user [MILLSLAB]\[svc-temp] at [Thu, 12 Nov 2026 09:33:51.915117 UTC] with [NTLMv2] status [NT_STATUS_WRONG_PASSWORD] workstation [FD-FRONTDESK-01] remote host [ipv4:172.31.13.22:50303] mapped to [MILLSLAB]\[svc-temp]. local host [ipv4:172.31.13.10:445]
+[2026/11/12 09:34:02.016228,  1] ../../source3/auth/auth_util.c:145(make_user_info_map)
+  Auth: [SMB2,(null)] user [MILLSLAB]\[rhayes] at [Thu, 12 Nov 2026 09:34:02.016228 UTC] with [NTLMv2] status [NT_STATUS_ACCOUNT_LOCKED_OUT] workstation [FD-FRONTDESK-01] remote host [ipv4:172.31.13.22:50310] mapped to [MILLSLAB]\[rhayes]. local host [ipv4:172.31.13.10:445]
+[2026/11/12 09:34:09.117339,  1] ../../source3/auth/auth_util.c:145(make_user_info_map)
+  Auth: [SMB2,(null)] user [MILLSLAB]\[rhayes] at [Thu, 12 Nov 2026 09:34:09.117339 UTC] with [NTLMv2] status [NT_STATUS_ACCOUNT_LOCKED_OUT] workstation [FD-FRONTDESK-01] remote host [ipv4:172.31.13.22:50311] mapped to [MILLSLAB]\[rhayes]. local host [ipv4:172.31.13.10:445]

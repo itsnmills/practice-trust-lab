@@ -1,0 +1,2 @@
+{"record_type": "finding", "severity": "critical", "package_name": "node-ipc", "version": "10.1.1", "ecosystem": "npm", "catalog_name": "node-ipc (May 2026 credential stealer compromise)", "project_path": "__LAB_ROOT__/frontdesk-01/home/Desktop/Downloads/billing-helper", "source_file": "__LAB_ROOT__/frontdesk-01/home/Desktop/Downloads/billing-helper/package-lock.json"}
+{"record_type": "summary", "scanned_files": 214, "findings": 1}

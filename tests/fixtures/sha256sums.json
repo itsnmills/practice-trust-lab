@@ -1,0 +1,8 @@
+{
+  "/srv/samba/shares/clinical/patient-schedule-export-2026-09.csv": "cb7d87f29c7bf50427bbde4e5658dd5abec8fce16cc5d1ffd429b96cd58b014d",
+  "/srv/samba/shares/clinical/insurance-verification-2026-09.csv": "e9566cadf38c968efe817852ea5ada7d5a19854dcaf957904fde00f6f74698a1",
+  "/srv/samba/shares/clinical/scribe-pilot-notes.txt": "cf4f1e68124b5ecb9186a135719b93b399527a66f783101994b4ecc9e2cbca37",
+  "/srv/samba/shares/frontoffice/intake-form-responses-2026-09.csv": "28aa96ebb36b4d3c6d70f5d0fba3056fd001bdd19c67229e7694dab3eb6e9c0e",
+  "/srv/samba/shares/frontoffice/front-desk-runbook.md": "fe7fa8eb40b741219e51a8a920a958507d50a1e664f436fe48e41c63752e29e1",
+  "/srv/samba/shares/it/backup-runbook.md": "85cdc69b2ce22811e3a6b3f518a731e68b1f4926c66089ea999ceeb94f56a1cf"
+}
