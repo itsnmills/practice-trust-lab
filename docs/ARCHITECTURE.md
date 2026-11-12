@@ -108,6 +108,8 @@ exercise drift (accounts, groups, share files/hashes, scribe events).
 ledger verification failed, `2` preflight failed (nothing collected). A section that
 raises is a degraded run, not a fatal one: the snapshot is still written, the failure
 is recorded in `section_errors` and a medium finding, and the exit code stays `0`.
+With `--strict` the snapshot and ledger entry are still written, but the exit code is
+`3`, so cron and CI can tell a degraded run from a clean one.
 
 The packet renderer is `evidence/practice_render/`:
 
