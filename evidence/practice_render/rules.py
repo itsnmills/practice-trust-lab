@@ -500,6 +500,11 @@ LEGACY_ORDER = (
 )
 
 
+# Rule ids that were renamed after snapshots carrying them existed. Old evidence
+# must keep rendering as the same row, so resolution maps the old id forward.
+RENAMED_RULE_IDS: dict[str, str] = {"HYG-KRBTOG-AGE": "HYG-KRBTGT-AGE"}
+
+
 def rule_for_detail(detail: str) -> Rule:
     """Legacy fallback: map old-style finding detail text to a rule."""
     lowered = (detail or "").lower()
@@ -513,6 +518,7 @@ def rule_for_detail(detail: str) -> Rule:
 def rule_for_finding(finding: dict[str, Any]) -> Rule:
     """Resolve a finding dict to a rule, preferring its stable rule id."""
     rule_id = finding.get("rule_id")
+    rule_id = RENAMED_RULE_IDS.get(rule_id, rule_id) if rule_id else rule_id
     if rule_id and rule_id in RULES:
         return RULES[rule_id]
     return rule_for_detail(finding.get("detail", ""))
