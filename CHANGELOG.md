@@ -64,6 +64,13 @@ package.
 
 ### Changed
 
+- **Packet design.** Labelled priority tiles, BLOCK/REVIEW/ALLOW badges, linked and
+  highlighted E-nn references, a wider metadata grid, a dark theme (print stays light),
+  and a stacked schedule on phones that keeps the owner lane instead of hiding it.
+- **Clinic portal design.** Tab navigation with a current-page indicator, a clearer
+  synthetic-data notice, consistent stat and vendor cards, scrollable tables, audit
+  event chips, a dark theme, and visible focus states; form labels are now associated
+  with their inputs and the success banner is `role="status"`.
 - `README.md` Development section now points at the make targets, packaging, and
   `docs/DEVELOPMENT.md`.
 - `.gitignore` covers virtualenvs, build/test/coverage artifacts, and mypy

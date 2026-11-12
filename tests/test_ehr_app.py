@@ -390,3 +390,55 @@ def test_unhandled_error_does_not_leak_internals(ehr, tmp_path):
     lowered = body.lower()
     assert b"traceback" not in lowered
     assert b"sqlite" not in lowered
+
+
+def test_portal_accessibility_and_self_contained_pages(ehr):
+    import re
+
+    _, port, _ = ehr
+    for path in ("/", "/intake", "/scribe", "/audit"):
+        _, data, _ = call(port, "GET", path)
+        text = data.decode()
+        assert f'href="{path}" aria-current="page"' in text
+        assert '<nav aria-label="Main navigation">' in text
+        assert "prefers-color-scheme: dark" in text
+        assert not re.search(r"<script\b|https?://", text, re.I)
+    _, data, _ = call(port, "POST", "/intake", *form({}))
+    assert b'<nav aria-label="Main navigation">' in data
+    assert not re.search(rb"<script\b|https?://", data, re.I)
+    _, data, _ = call(port, "GET", "/intake?ok=1")
+    text = data.decode()
+    for field in ("name", "dob", "phone", "reason"):
+        assert f'<label for="{field}">' in text
+        assert f'id="{field}" name="{field}"' in text
+    assert 'role="status"' in text
+
+
+def test_palette_text_contrast():
+    import re
+
+    css = app.page("Test", "")
+    palettes = re.findall(r":root \{ ([^}]+) \}", css)
+    assert len(palettes) == 2
+
+    def luminance(value):
+        channels = [int(value[i : i + 2], 16) / 255 for i in (1, 3, 5)]
+        channels = [c / 12.92 if c <= 0.04045 else ((c + 0.055) / 1.055) ** 2.4 for c in channels]
+        return sum(c * weight for c, weight in zip(channels, (0.2126, 0.7152, 0.0722), strict=True))
+
+    for palette in palettes:
+        colors = dict(re.findall(r"--([\w-]+):(#\w{6})", palette))
+        for fg, bg in (
+            ("ink", "bg"),
+            ("ink", "card"),
+            ("mut", "bg"),
+            ("mut", "card"),
+            ("accent-text", "accent"),
+            ("ok-text", "ok-bg"),
+            ("warn-text", "warn-bg"),
+            ("bad-text", "bad-bg"),
+            ("chip-text", "chip-bg"),
+            ("ink", "soft"),
+        ):
+            light, dark = sorted((luminance(colors[fg]), luminance(colors[bg])), reverse=True)
+            assert (light + 0.05) / (dark + 0.05) >= 4.5, (fg, bg)
