@@ -1,0 +1,18 @@
+dn: CN=Robin Hayes,OU=FrontOffice,OU=Users,DC=millslab,DC=internal
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: user
+cn: Robin Hayes
+sn: Hayes
+givenName: Robin
+name: Robin Hayes
+sAMAccountName: rhayes
+userPrincipalName: rhayes@millslab.internal
+displayName: Robin Hayes
+description: Former front office coordinator
+userAccountControl: 514
+accountExpires: 9223372036854775807
+lastLogon: 133900000000000000
+lastLogonTimestamp: 133900000000000000
+pwdLastSet: 133900000000000000

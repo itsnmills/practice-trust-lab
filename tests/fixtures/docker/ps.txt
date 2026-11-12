@@ -1,0 +1,7 @@
+osticket-web-1|Up 4 weeks|127.0.0.1:8080->80/tcp
+samba-dc|Up 3 hours|127.0.0.1:88->88/tcp, 127.0.0.1:88->88/udp, 127.0.0.1:389->389/tcp, 127.0.0.1:389->389/udp
+clinic-ehr|Up 3 hours|127.0.0.1:8095->8095/tcp
+ws-clinical-01|Up 2 hours|
+fd-frontdesk-01|Up 2 hours|
+msp-jump-01|Up 2 hours|
+watchtower|Up 4 days|

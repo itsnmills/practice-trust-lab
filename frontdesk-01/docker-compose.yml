@@ -1,31 +1,53 @@
 services:
   workstation:
     build: ../endpoint
+    image: frontdesk-01-endpoint:0.1
     container_name: fd-frontdesk-01
-    hostname: fd-frontdesk-01
+    hostname: frontdesk-01
     domainname: millslab.internal
     restart: unless-stopped
+    # Samba domain join and winbind need the same capabilities as the DC.
+    cap_drop:
+      - ALL
     cap_add:
       - SYS_ADMIN
+      - CHOWN
+      - DAC_OVERRIDE
+      - FOWNER
+      - SETUID
+      - SETGID
+      - NET_BIND_SERVICE
+      - KILL
+    security_opt:
+      - no-new-privileges:true
     environment:
       ENDPOINT_NAME: fd-frontdesk-01
       ENDPOINT_ROLE: Front office workstation
       SYNC_USER: lnguyen
-      SYNC_PASS: ${TECH_PASS}
       SYNC_SHARES: FrontOfficeShare
       SYNC_PATTERN: "*"
-      SAMBA_ADMIN_PASS: ${SAMBA_ADMIN_PASS}
+    secrets:
+      - lab_env
     dns:
       - 172.31.13.10
     volumes:
       - ./home:/home/staff
       - ./logs:/var/log/endpoint
       - fd-samba-data:/var/lib/samba
+    stop_grace_period: 20s
+    mem_limit: 512m
+    cpus: 1.0
+    pids_limit: 256
     networks:
       mills-lab:
         ipv4_address: 172.31.13.22
 volumes:
   fd-samba-data:
+secrets:
+  # The shared 0600 env file is mounted read-only; it never appears in
+  # `docker inspect` because passwords are no longer container environment.
+  lab_env:
+    file: ../samba-dc/.env
 networks:
   mills-lab:
     external: true

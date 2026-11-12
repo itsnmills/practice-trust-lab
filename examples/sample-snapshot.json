@@ -1,6 +1,6 @@
 {
   "collector": "collect_practice_evidence.py",
-  "schema": "velari.practice-snapshot/0.2",
+  "schema": "velari.practice-snapshot/0.3",
   "collected_at": "2026-09-13T18:57:14Z",
   "lab": "millslab.internal (synthetic)",
   "containers": [
@@ -27,17 +27,7 @@
     {
       "name": "samba-dc",
       "status": "Up 2 hours",
-      "ports": "127.0.0.1:88->88/tcp, 127.0.0.1:88->88/udp, 127.0.0.1:389->389/tcp, 127.0.0.1:389->389/udp, 100."
-    },
-    {
-      "name": "osticket-web-1",
-      "status": "Up 4 weeks",
-      "ports": "127.0.0.1:8080->80/tcp"
-    },
-    {
-      "name": "osticket-db-1",
-      "status": "Up 4 weeks",
-      "ports": "3306/tcp"
+      "ports": "127.0.0.1:88->88/tcp, 127.0.0.1:88->88/udp, 127.0.0.1:389->389/tcp, 127.0.0.1:389->389/udp"
     }
   ],
   "identity": {

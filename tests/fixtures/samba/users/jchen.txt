@@ -1,0 +1,19 @@
+dn: CN=Jordan Chen,OU=Clinical,OU=Users,DC=millslab,DC=internal
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: user
+cn: Jordan Chen
+sn: Chen
+givenName: Jordan
+name: Jordan Chen
+sAMAccountName: jchen
+userPrincipalName: jchen@millslab.internal
+displayName: Jordan Chen
+description: Clinical staff
+userAccountControl: 512
+accountExpires: 9223372036854775807
+lastLogon: 134387850000000000
+lastLogonTimestamp: 134387856000000000
+pwdLastSet: 134300448000000000
+memberOf: CN=DL-ClinicalShare-RW,OU=Groups,DC=millslab,DC=internal

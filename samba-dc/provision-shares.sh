@@ -36,7 +36,10 @@ EOF
 }
 
 mkdir -p "$ROOT"/clinical "$ROOT"/frontoffice "$ROOT"/it
-chgrp -R "MILLSLAB\\DL-ClinicalShare-RW" "$ROOT/clinical" 2>/dev/null || true
+# NOTE: filesystem access is set with NT ACLs (see apply_acls below). An earlier
+# version ran `chgrp "MILLSLAB\\DL-ClinicalShare-RW"`, which always failed (the name
+# does not resolve to a gid here) and was hidden by `|| true`, leaving every share
+# directory world-readable (0755 root) with access gated only by smb.conf.
 
 add_share "ClinicalShare"     clinical     "@DL-ClinicalShare-RW" "DL-ClinicalShare-RW"
 add_share "FrontOfficeShare"  frontoffice  "@SG-FrontOffice @SG-IT" "SG-FrontOffice"
@@ -95,6 +98,44 @@ Backup runbook (draft)
 - Nightly backup service account: svc-backup (currently disabled)
 - TODO: verify restore test evidence quarterly
 EOF
+
+# --- Filesystem ACLs (least privilege, AGDLP) --------------------------------
+# Defense in depth: the smb.conf `valid users` gate is not the only control. Each
+# share directory grants full control to the local Administrator and
+# read/write/delete (no change-permissions) to the groups in its model; a
+# "group:r" argument grants read/execute only (SG-IT on the front-office share).
+# Re-running replaces the ACL with the same value, so this is idempotent.
+group_sid() {
+  samba-tool group show "$1" --attributes=objectSid 2>/dev/null | awk '/^objectSid/ {print $2}'
+}
+
+apply_acls() {
+  local dir="$1"; shift
+  local rw="0x1301bf" ro="0x1200a9" sddl_dir="O:LAG:LAD:PAI(A;OICI;FA;;;LA)" sddl_file="O:LAG:LAD:PAI(A;;FA;;;LA)"
+  local spec g mask sid
+  for spec in "$@"; do
+    g="${spec%%:*}"; mask="$rw"
+    [ "$spec" != "$g:r" ] || mask="$ro"
+    sid="$(group_sid "$g")"
+    [ -n "$sid" ] || { echo "ACL skipped: cannot resolve SID for group $g" >&2; return 1; }
+    sddl_dir="${sddl_dir}(A;OICI;${mask};;;${sid})"
+    sddl_file="${sddl_file}(A;;${mask};;;${sid})"
+  done
+  samba-tool ntacl set "$sddl_dir" "$dir"
+  find "$dir" -mindepth 1 -type d | while IFS= read -r d; do samba-tool ntacl set "$sddl_dir" "$d"; done
+  find "$dir" -type f | while IFS= read -r f; do samba-tool ntacl set "$sddl_file" "$f"; done
+  echo "ACL applied: $dir -> $*"
+}
+
+apply_acls "$ROOT/clinical"    DL-ClinicalShare-RW
+# SG-IT is granted read/write here on purpose, not read-only: the share's
+# `force group = SG-FrontOffice` adds that group to every connecting user's token,
+# so IT users get the front-office group's write access regardless of an IT:r entry
+# (verified live: an SG-IT user wrote to the share under an SG-IT read-only ACL).
+# Making IT genuinely read-only means dropping `force group` and relying on ACL
+# inheritance. The collector reports this as ACL-UNDOCUMENTED-WRITE.
+apply_acls "$ROOT/frontoffice" SG-FrontOffice SG-IT
+apply_acls "$ROOT/it"          SG-IT
 
 # --- Reload samba ---------------------------------------------------------
 smbcontrol all reload-config >/dev/null

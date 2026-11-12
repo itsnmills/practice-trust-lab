@@ -1,0 +1,14 @@
+dn: CN=svc-backup,OU=Service Accounts,OU=Users,DC=millslab,DC=internal
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: user
+cn: svc-backup
+name: svc-backup
+sAMAccountName: svc-backup
+description: Legacy backup service account (retired)
+userAccountControl: 514
+accountExpires: 9223372036854775807
+lastLogon: 0
+lastLogonTimestamp: 0
+pwdLastSet: 0

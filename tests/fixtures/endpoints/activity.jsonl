@@ -1,0 +1,4 @@
+{"event": "endpoint_start", "ts": "2026-11-12T08:59:30Z"}
+{"event": "share_sync", "ts": "2026-11-12T09:05:00Z", "files": 2}
+{"event": "share_sync", "ts": "2026-11-12T09:10:00Z", "files": 2}
+{"event": "share_sync", "ts": "2026-11-12T09:15:00Z", "files": 2}

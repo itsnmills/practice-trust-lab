@@ -1,0 +1,19 @@
+dn: CN=Nia Bruce,OU=IT,OU=Users,DC=millslab,DC=internal
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: user
+cn: Nia Bruce
+sn: Bruce
+givenName: Nia
+name: Nia Bruce
+sAMAccountName: nbruce
+userPrincipalName: nbruce@millslab.internal
+displayName: Nia Bruce
+description: New MSP engineer
+userAccountControl: 512
+accountExpires: 9223372036854775807
+lastLogon: 134387840000000000
+lastLogonTimestamp: 134387856000000000
+pwdLastSet: 134387856000000000
+memberOf: CN=SG-IT,OU=Groups,DC=millslab,DC=internal

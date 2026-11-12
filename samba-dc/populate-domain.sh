@@ -5,13 +5,28 @@
 # Everyone here is synthetic. The org chart is a small fictional clinic
 # office because that is the environment this lab practices for.
 #
-# Run from the docker host:
-#   source .env
-#   docker exec -i samba-dc bash -s "$USER_TEMP_PASS" "$TECH_PASS" < populate-domain.sh
+# Run from the docker host (passwords come from the container's read-only
+# lab_env secret, so they never appear on a host command line):
+#   docker exec -i samba-dc bash -s < populate-domain.sh
+#
+# Positional arguments are still accepted for manual use:
+#   docker exec -i samba-dc bash -s -- <temp-pw> <tech-pw> < populate-domain.sh
 
 set -euo pipefail
-TEMP_PW="${1:?usage: populate-domain.sh <temp-pw> <tech-pw>}"
-TECH_PW="${2:?usage: populate-domain.sh <temp-pw> <tech-pw>}"
+TEMP_PW="${1:-${TEMP_PW:-}}"
+TECH_PW="${2:-${TECH_PW:-}}"
+if [ -z "$TEMP_PW" ] || [ -z "$TECH_PW" ]; then
+  if [ -r /run/secrets/lab_env ]; then
+    set -a
+    # shellcheck disable=SC1091
+    . /run/secrets/lab_env
+    set +a
+  fi
+  TEMP_PW="${TEMP_PW:-${USER_TEMP_PASS:-}}"
+  TECH_PW="${TECH_PW:-${TECH_PASS:-}}"
+fi
+TEMP_PW="${TEMP_PW:?usage: populate-domain.sh <temp-pw> <tech-pw> (or mount /run/secrets/lab_env)}"
+TECH_PW="${TECH_PW:?usage: populate-domain.sh <temp-pw> <tech-pw> (or mount /run/secrets/lab_env)}"
 BASE="DC=millslab,DC=internal"
 
 # --- OUs (parents first) --------------------------------------------------

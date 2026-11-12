@@ -10,9 +10,30 @@ clinic-ehr/data/
 # Evidence runtime output (samples in examples/ are committed)
 evidence/artifacts/
 evidence/ledger.jsonl
+evidence/ledger.jsonl.lock
+evidence/ledger.jsonl.recovered*
 evidence/latest.html
 evidence/.catalogs/
 
 # Python
 __pycache__/
 *.pyc
+.venv/
+venv/
+build/
+dist/
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.tox/
+htmlcov/
+.coverage
+.coverage.*
+coverage.xml
+coverage.json
+badges/
+
+# Tooling / OS noise
+.pre-commit-cache/
+.DS_Store

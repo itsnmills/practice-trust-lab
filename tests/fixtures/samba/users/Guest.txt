@@ -1,0 +1,14 @@
+dn: CN=Guest,CN=Users,DC=millslab,DC=internal
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: user
+cn: Guest
+name: Guest
+sAMAccountName: Guest
+description: Built-in guest account
+userAccountControl: 514
+accountExpires: 0
+lastLogon: 0
+lastLogonTimestamp: 0
+pwdLastSet: 0

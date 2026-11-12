@@ -1,0 +1,42 @@
+# Local pre-commit hooks. Install once with:
+#   uv tool install pre-commit   (or: python3 -m pip install pre-commit)
+#   pre-commit install
+# ShellCheck must be on PATH for the local hook (apt install shellcheck).
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+        args: [--allow-multiple-documents]
+      - id: check-added-large-files
+        args: [--maxkb=2048]
+      - id: detect-private-key
+      - id: check-merge-conflict
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.17.4
+    hooks:
+      - id: ruff
+        args: [--fix]
+      - id: ruff-format
+
+  - repo: local
+    hooks:
+      - id: shellcheck
+        name: shellcheck (errors only)
+        entry: shellcheck --severity=error
+        language: system
+        types: [shell]
+
+      # Belt and braces: these paths are gitignored, but a `git add -f` or a
+      # bad .gitignore edit must never land credentials or generated evidence.
+      - id: block-secrets-and-artifacts
+        name: block samba-dc/.env, evidence artifacts, and bytecode
+        entry: >-
+          bash -c 'status=0; for f in "$@"; do case "$f" in
+          samba-dc/.env|*/samba-dc/.env|evidence/artifacts/*|*/evidence/artifacts/*|evidence/ledger.jsonl|*/evidence/ledger.jsonl|*.pyc)
+          echo "refusing to commit protected file: $f" >&2; status=1;; esac; done; exit $$status' --
+        language: system
+        pass_filenames: true

@@ -8,6 +8,11 @@ set -euo pipefail
 REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$REPO"
 
+if ! docker inspect fd-frontdesk-01 >/dev/null 2>&1; then
+  echo "fd-frontdesk-01 is not running; start the lab with scripts/bootstrap.sh" >&2
+  exit 1
+fi
+
 docker exec fd-frontdesk-01 mkdir -p /home/staff/Desktop/Downloads/billing-helper
 
 docker exec fd-frontdesk-01 sh -c 'cat > /home/staff/Desktop/Downloads/billing-helper/package.json <<EOF
@@ -32,3 +37,4 @@ EOF
 chmod -R a+r /home/staff/Desktop/Downloads'
 
 echo "planted: fd-frontdesk-01:/home/staff/Desktop/Downloads/billing-helper"
+echo "re-run safe: files are overwritten with the same synthetic content"
