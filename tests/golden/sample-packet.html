@@ -9,6 +9,8 @@
   --ink: #17191d; --body: #3a3f45; --muted: #6d737a; --faint: #6f757c;
   --hair: rgba(23,25,29,0.16); --hair-soft: rgba(23,25,29,0.08);
   --paper: #fcfbf9; --hot: #8f2f26; --gold: #c9a84c;
+  --block-text: #76241d; --block-fill: #fff0ee; --review-text: #664600; --review-fill: #fff5da;
+  --allow-text: #18572e; --allow-fill: #eaf8ed; --tag-fill: #f0eeea; --target-fill: #fff8df;
   --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
   --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
 }
@@ -171,6 +173,53 @@ table { width: 100%; border-collapse: collapse; }
   thead { display: table-header-group; }
   tr { break-inside: avoid; page-break-inside: avoid; }
 }
+
+/* Editorial refinements */
+.kvb { max-width: none; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0 28px; }
+.kvb dt { white-space: nowrap; }
+.counts { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; border: 0; padding: 0; }
+.count { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 14px; border: 1px solid var(--hair); border-top: 3px solid var(--ink); }
+.ck { font-size: 12px; color: var(--ink); }
+.ck small { display: block; font-size: 11px; font-weight: 400; text-transform: none; letter-spacing: 0; color: var(--muted); }
+.cv { font-size: 27px; }
+.verdict, .ptag { display: inline-block; width: fit-content; padding: 2px 6px; border: 1px solid currentColor; border-radius: 3px; font-weight: 700; }
+.verdict.block { color: var(--block-text); background: var(--block-fill); }
+.verdict.review { color: var(--review-text); background: var(--review-fill); }
+.verdict.allow { color: var(--allow-text); background: var(--allow-fill); }
+.ptag { color: var(--ink); background: var(--tag-fill); }
+.ref { white-space: nowrap; }
+.mobile-lane { display: none; }
+.finding .ev { border-left: 2px solid var(--hair); padding-left: 8px; }
+a { color: var(--hot); text-decoration-thickness: 1px; text-underline-offset: 3px; }
+a:hover { text-decoration-thickness: 2px; }
+.sched tr:target { outline: 2px solid var(--gold); outline-offset: -2px; background: var(--target-fill); }
+.severity-high .ref { border-left: 3px solid var(--hot); padding-left: 6px; }
+@media (max-width: 760px) {
+  .kvb { grid-template-columns: 1fr; }
+  .counts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .mobile-lane { display: block; margin-top: 4px; color: var(--muted); font-size: 12px; }
+}
+@media (prefers-color-scheme: dark) {
+  :root { --ink: #f4f1eb; --body: #dedad3; --muted: #bdbab4; --faint: #bdbab4; --paper: #1c1e21; --hot: #ffaaa0; --gold: #e0c373; --hair: rgba(255,255,255,0.25); --hair-soft: rgba(255,255,255,0.13); --block-text: #ffd5cf; --block-fill: #61251f; --review-text: #ffe2a0; --review-fill: #59400e; --allow-text: #c8f2d2; --allow-fill: #174b2a; --tag-fill: #393b3d; --target-fill: #4b4024; }
+}
+@media print {
+  :root { --ink: #17191d; --body: #3a3f45; --muted: #6d737a; --faint: #6f757c; --paper: #ffffff; --hot: #8f2f26; --gold: #9a7723; --hair: rgba(23,25,29,0.16); --hair-soft: rgba(23,25,29,0.08); --block-text: #76241d; --block-fill: #fff0ee; --review-text: #664600; --review-fill: #fff5da; --allow-text: #18572e; --allow-fill: #eaf8ed; --tag-fill: #f0eeea; --target-fill: #fff8df; }
+}
+@media screen and (max-width: 760px) {
+  /* Four columns cannot fit a phone, so each schedule row becomes a stacked block:
+     ref and due on one line, then the finding (which carries the owner lane). The
+     header row stays in the DOM for assistive tech but is visually hidden. */
+  .sched, .sched tbody { display: block; }
+  .sched thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .sched tr { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 4px 12px; padding: 14px 0; border-bottom: 1px solid var(--hair-soft); }
+  .sched tr.pgroup { display: block; padding: 0; }
+  .sched td { display: block; padding: 0; border: 0; width: auto; }
+  .sched td.ref { grid-column: 1; grid-row: 1; }
+  .sched td.due { grid-column: 2; grid-row: 1; text-align: right; white-space: normal; }
+  .sched td.finding { grid-column: 1 / -1; grid-row: 2; }
+  .sched td.lane { display: none; }
+  .evidence-table { overflow-wrap: anywhere; }
+}
 </style>
 </head>
 <body>
@@ -202,7 +251,7 @@ table { width: 100%; border-collapse: collapse; }
 
   <section class="sec-short">
     <h2 id="summary"><span class="secnum">1</span>Summary of findings</h2>
-    <div class="counts"><span class="count"><span class="ck hot">P1</span><span class="cv">8</span></span><span class="count"><span class="ck">P2</span><span class="cv">3</span></span><span class="count"><span class="ck">P3</span><span class="cv">8</span></span><span class="count"><span class="ck">P4</span><span class="cv">2</span></span></div>
+    <div class="counts"><span class="count"><span class="ck">Priority 1<small>High</small></span><span class="cv">8</span></span><span class="count"><span class="ck">Priority 2<small>Medium</small></span><span class="cv">3</span></span><span class="count"><span class="ck">Priority 3<small>Low</small></span><span class="cv">8</span></span><span class="count"><span class="ck">Priority 4<small>Informational</small></span><span class="cv">2</span></span></div>
     <p class="summary-sentence">8 priority-1 findings; 4 require owner decision (&sect;2). Evidence schedule in &sect;3.</p>
     <p class="change-note"><span class="plabel">Change monitor &mdash;</span> No changes against the 13 Sep 2026, 18:56 UTC snapshot.</p>
   </section>
@@ -210,28 +259,28 @@ table { width: 100%; border-collapse: collapse; }
   <section class="sec-short">
     <h2 id="decisions"><span class="secnum">2</span>Decision brief</h2>
     <div class="clause">
-        <div class="clause-rail"><span class="cnum">2.1</span><span class="verdict hot">BLOCK</span></div>
+        <div class="clause-rail"><span class="cnum">2.1</span><span class="verdict block">BLOCK</span></div>
         <div class="clause-body">
           <p><strong>Do not deploy the flagged package.</strong> The front-desk billing helper carries a known-compromised dependency. Keep it off any other machine until the package is removed or replaced.</p>
-          <p class="proof-line"><span class="plabel">Proof to save:</span> Clean re-scan receipt <span class="xref">&rarr; E-01</span></p>
+          <p class="proof-line"><span class="plabel">Proof to save:</span> Clean re-scan receipt <span class="xref">&rarr; <a href="#E-01">E-01</a></span></p>
         </div>
       </div><div class="clause">
-        <div class="clause-rail"><span class="cnum">2.2</span><span class="verdict ">REVIEW</span></div>
+        <div class="clause-rail"><span class="cnum">2.2</span><span class="verdict review">REVIEW</span></div>
         <div class="clause-body">
           <p><strong>Hold AI scribe expansion.</strong> Encounter data is leaving the EHR to a vendor with no verified BAA. Do not expand the pilot until BAA evidence is on file.</p>
-          <p class="proof-line"><span class="plabel">Proof to save:</span> Signed BAA + subprocessor list <span class="xref">&rarr; E-02</span></p>
+          <p class="proof-line"><span class="plabel">Proof to save:</span> Signed BAA + subprocessor list <span class="xref">&rarr; <a href="#E-02">E-02</a></span></p>
         </div>
       </div><div class="clause">
-        <div class="clause-rail"><span class="cnum">2.3</span><span class="verdict ">REVIEW</span></div>
+        <div class="clause-rail"><span class="cnum">2.3</span><span class="verdict review">REVIEW</span></div>
         <div class="clause-body">
           <p><strong>Stop desktop copies of clinical exports.</strong> Patient-adjacent exports sit on local desktops outside the managed share. Stop the copy workflow and document the replacement.</p>
-          <p class="proof-line"><span class="plabel">Proof to save:</span> Endpoint cleanup confirmation <span class="xref">&rarr; E-03</span></p>
+          <p class="proof-line"><span class="plabel">Proof to save:</span> Endpoint cleanup confirmation <span class="xref">&rarr; <a href="#E-03">E-03</a></span></p>
         </div>
       </div><div class="clause">
-        <div class="clause-rail"><span class="cnum">2.4</span><span class="verdict ">REVIEW</span></div>
+        <div class="clause-rail"><span class="cnum">2.4</span><span class="verdict review">REVIEW</span></div>
         <div class="clause-body">
           <p><strong>Confirm business need for share exports.</strong> Schedule and insurance exports live on a share that clinical staff can reach. Confirm each export is required, then restrict to the minimum lane.</p>
-          <p class="proof-line"><span class="plabel">Proof to save:</span> Owner signoff per export <span class="xref">&rarr; E-04</span></p>
+          <p class="proof-line"><span class="plabel">Proof to save:</span> Owner signoff per export <span class="xref">&rarr; <a href="#E-04">E-04</a></span></p>
         </div>
       </div>
   </section>
@@ -241,100 +290,100 @@ table { width: 100%; border-collapse: collapse; }
     <p class="sec-note">Due windows are computed from collection (13 Sep 2026, 18:57 UTC). Refs E-nn are cited throughout.</p>
     <table class="sched">
       <thead><tr><th scope="col">Ref</th><th scope="col">Finding</th><th scope="col">Owner lane</th><th scope="col">Due</th></tr></thead>
-      <tbody><tr class="pgroup"><td colspan="4"><span class="ptag hot">P1</span>Priority 1 &mdash; act by 20 Sep 2026</td></tr><tr>
+      <tbody><tr class="pgroup"><td colspan="4"><span class="ptag hot">P1</span>Priority 1 &mdash; act by 20 Sep 2026</td></tr><tr id="E-01" class="severity-high">
         <td class="ref"><span class="mono refnum">E-01</span></td>
         <td class="finding">
-          <strong>Known-compromised package on an endpoint</strong><div class='enum'>Known-compromised package node-ipc@10.1.1 (npm) in frontdesk-01/home/Desktop/Downloads/billing-helper</div>
+          <strong>Known-compromised package on an endpoint</strong><span class="mobile-lane">Owner lane: MSP + practice owner</span><div class='enum'>Known-compromised package node-ipc@10.1.1 (npm) in frontdesk-01/home/Desktop/Downloads/billing-helper</div>
           <p class="ask">Remove or replace the flagged package, then re-scan the endpoint.</p>
           <p class="proof"><span class="plabel">Proof:</span> Remediated lockfile + clean scan receipt</p>
           <p class="ev">Evidence: Verified &middot; HIPAA: §164.308(a)(1)(ii)(A); §164.308(a)(1)(ii)(B); §164.308(a)(5)(ii)(B)</p>
         </td>
         <td class="lane">MSP + practice owner</td>
         <td class="due mono">20 Sep 2026</td>
-      </tr><tr>
+      </tr><tr id="E-02" class="severity-high">
         <td class="ref"><span class="mono refnum">E-02</span></td>
         <td class="finding">
-          <strong>AI scribe transmissions without verified BAA</strong><div class='enum'>2 scribe transmission events; verify signed BAA per vendor</div>
+          <strong>AI scribe transmissions without verified BAA</strong><span class="mobile-lane">Owner lane: Practice owner + scribe vendor</span><div class='enum'>2 scribe transmission events; verify signed BAA per vendor</div>
           <p class="ask">Obtain a signed BAA and subprocessor list before any expansion.</p>
           <p class="proof"><span class="plabel">Proof:</span> Signed BAA + subprocessor list</p>
           <p class="ev">Evidence: Observed &middot; HIPAA: §164.308(b)(1); §164.502(e)(1)</p>
         </td>
         <td class="lane">Practice owner + scribe vendor</td>
         <td class="due mono">20 Sep 2026</td>
-      </tr><tr>
+      </tr><tr id="E-03" class="severity-high">
         <td class="ref"><span class="mono refnum">E-03</span></td>
         <td class="finding">
-          <strong>Patient-adjacent exports cached on endpoints</strong><div class='enum'>ws-clinical-01 — 2 files<br>fd-frontdesk-01 — 1 file<br>msp-jump-01 — 1 file</div>
+          <strong>Patient-adjacent exports cached on endpoints</strong><span class="mobile-lane">Owner lane: MSP + front office</span><div class='enum'>ws-clinical-01 — 2 files<br>fd-frontdesk-01 — 1 file<br>msp-jump-01 — 1 file</div>
           <p class="ask">Remove local copies and document a share-only workflow.</p>
           <p class="proof"><span class="plabel">Proof:</span> Cleanup confirmation + workflow note</p>
           <p class="ev">Evidence: Verified &middot; HIPAA: §164.310(d)(1); §164.312(a)(1); §164.312(a)(2)(iv)</p>
         </td>
         <td class="lane">MSP + front office</td>
         <td class="due mono">20 Sep 2026</td>
-      </tr><tr>
+      </tr><tr id="E-04" class="severity-high">
         <td class="ref"><span class="mono refnum">E-04</span></td>
         <td class="finding">
-          <strong>Patient-adjacent data on file shares</strong><div class='enum'>/srv/samba/shares/frontoffice/intake-form-responses-2026-09.csv<br>/srv/samba/shares/clinical/patient-schedule-export-2026-09.csv<br>/srv/samba/shares/clinical/insurance-verification-2026-09.csv</div>
+          <strong>Patient-adjacent data on file shares</strong><span class="mobile-lane">Owner lane: Practice owner + MSP</span><div class='enum'>/srv/samba/shares/frontoffice/intake-form-responses-2026-09.csv<br>/srv/samba/shares/clinical/patient-schedule-export-2026-09.csv<br>/srv/samba/shares/clinical/insurance-verification-2026-09.csv</div>
           <p class="ask">Confirm business need per export; move to minimal-access share or remove.</p>
           <p class="proof"><span class="plabel">Proof:</span> Share ACL export + owner signoff</p>
           <p class="ev">Evidence: Verified &middot; HIPAA: §164.312(a)(1); §164.502(b)</p>
         </td>
         <td class="lane">Practice owner + MSP</td>
         <td class="due mono">27 Sep 2026</td>
-      </tr><tr class="pgroup"><td colspan="4"><span class="ptag ">P2</span>Priority 2 &mdash; act by 13 Oct 2026</td></tr><tr>
+      </tr><tr class="pgroup"><td colspan="4"><span class="ptag ">P2</span>Priority 2 &mdash; act by 13 Oct 2026</td></tr><tr id="E-05" class="severity-medium">
         <td class="ref"><span class="mono refnum">E-05</span></td>
         <td class="finding">
-          <strong>Public web intake form in use</strong><div class='enum'>1 public web intake submission; confirm TLS + retention + access control</div>
+          <strong>Public web intake form in use</strong><span class="mobile-lane">Owner lane: MSP + web vendor</span><div class='enum'>1 public web intake submission; confirm TLS + retention + access control</div>
           <p class="ask">Confirm TLS, retention, and access control for the intake form.</p>
           <p class="proof"><span class="plabel">Proof:</span> Vendor security page + retention statement</p>
           <p class="ev">Evidence: Observed &middot; HIPAA: §164.312(e)(1); §164.312(a)(1)</p>
         </td>
         <td class="lane">MSP + web vendor</td>
         <td class="due mono">13 Oct 2026</td>
-      </tr><tr>
+      </tr><tr id="E-06" class="severity-medium">
         <td class="ref"><span class="mono refnum">E-06</span></td>
         <td class="finding">
-          <strong>Authentication failures in the review window</strong><div class='enum'>20 auth failures in last 24h; check lockout source</div>
+          <strong>Authentication failures in the review window</strong><span class="mobile-lane">Owner lane: MSP</span><div class='enum'>20 auth failures in last 24h; check lockout source</div>
           <p class="ask">Review the failure source and any inbound authentication attempts.</p>
           <p class="proof"><span class="plabel">Proof:</span> Auth log summary</p>
           <p class="ev">Evidence: Observed &middot; HIPAA: §164.308(a)(5)(ii)(C); §164.312(b); §164.308(a)(1)(ii)(D)</p>
         </td>
         <td class="lane">MSP</td>
         <td class="due mono">27 Sep 2026</td>
-      </tr><tr>
+      </tr><tr id="E-07" class="severity-medium">
         <td class="ref"><span class="mono refnum">E-07</span></td>
         <td class="finding">
-          <strong>Admin-equivalent group membership</strong><div class='enum'>SG-IT membership = local admin equivalent; confirm business need and MFA path</div>
+          <strong>Admin-equivalent group membership</strong><span class="mobile-lane">Owner lane: MSP</span><div class='enum'>SG-IT membership = local admin equivalent; confirm business need and MFA path</div>
           <p class="ask">Confirm business need; enforce MFA on admin-equivalent access.</p>
           <p class="proof"><span class="plabel">Proof:</span> Access review signoff + MFA evidence</p>
           <p class="ev">Evidence: Verified &middot; HIPAA: §164.312(d); §164.308(a)(4)(ii)(C)</p>
         </td>
         <td class="lane">MSP</td>
         <td class="due mono">13 Oct 2026</td>
-      </tr><tr class="pgroup"><td colspan="4"><span class="ptag ">P3</span>Priority 3 &mdash; act by 13 Oct 2026</td></tr><tr>
+      </tr><tr class="pgroup"><td colspan="4"><span class="ptag ">P3</span>Priority 3 &mdash; act by 13 Oct 2026</td></tr><tr id="E-08" class="severity-low">
         <td class="ref"><span class="mono refnum">E-08</span></td>
         <td class="finding">
-          <strong>Dormant enabled accounts</strong><div class='enum'>malvarez<br>aruiz<br>dpark<br>etran<br>sokafor<br>kwhite<br>pnatarajan</div>
+          <strong>Dormant enabled accounts</strong><span class="mobile-lane">Owner lane: MSP</span><div class='enum'>malvarez<br>aruiz<br>dpark<br>etran<br>sokafor<br>kwhite<br>pnatarajan</div>
           <p class="ask">Disable or document each unused account.</p>
           <p class="proof"><span class="plabel">Proof:</span> Account disposition list</p>
           <p class="ev">Evidence: Verified &middot; HIPAA: §164.308(a)(3)(ii)(C); §164.308(a)(4)(ii)(C)</p>
         </td>
         <td class="lane">MSP</td>
         <td class="due mono">13 Oct 2026</td>
-      </tr><tr>
+      </tr><tr id="E-09" class="severity-low">
         <td class="ref"><span class="mono refnum">E-09</span></td>
         <td class="finding">
-          <strong>non-password auth failure observed: NT_STATUS_PROTOCOL_UNREACHABLE</strong>
+          <strong>non-password auth failure observed: NT_STATUS_PROTOCOL_UNREACHABLE</strong><span class="mobile-lane">Owner lane: Practice owner</span>
           <p class="ask">Review the item and assign an owner.</p>
           <p class="proof"><span class="plabel">Proof:</span> Review note</p>
           <p class="ev">Evidence: Observed</p>
         </td>
         <td class="lane">Practice owner</td>
         <td class="due mono">13 Oct 2026</td>
-      </tr><tr class="pgroup"><td colspan="4"><span class="ptag ">P4</span>Priority 4 &mdash; act by 12 Dec 2026</td></tr><tr>
+      </tr><tr class="pgroup"><td colspan="4"><span class="ptag ">P4</span>Priority 4 &mdash; act by 12 Dec 2026</td></tr><tr id="E-10" class="severity-info">
         <td class="ref"><span class="mono refnum">E-10</span></td>
         <td class="finding">
-          <strong>Disabled accounts still present</strong><div class='enum'>svc-backup<br>rhayes</div>
+          <strong>Disabled accounts still present</strong><span class="mobile-lane">Owner lane: Practice owner</span><div class='enum'>svc-backup<br>rhayes</div>
           <p class="ask">Confirm disabled accounts are still required; remove if not.</p>
           <p class="proof"><span class="plabel">Proof:</span> Offboarding record</p>
           <p class="ev">Evidence: Verified &middot; HIPAA: §164.308(a)(3)(ii)(C)</p>

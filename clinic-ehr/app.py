@@ -240,41 +240,67 @@ def audit(event, detail, remote="", ua=""):
 
 
 def page(title, body):
+    links = (
+        ("Dashboard", "/"),
+        ("Patient intake", "/intake"),
+        ("AI scribe", "/scribe"),
+        ("Audit log", "/audit"),
+        ("Health", "/healthz"),
+    )
+    nav = "".join(
+        '<a href="{}"{}>{}</a>'.format(url, ' aria-current="page"' if title == label else "", label)
+        for label, url in links
+    )
     return f"""<!doctype html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{html.escape(title)} - MillsLab Clinic (Synthetic)</title>
 <style>
-  :root {{ --ink:#1c1917; --mut:#57534e; --line:#e7e5e4; --bg:#faf9f7; --accent:#0f766e; --warn:#b45309; --bad:#b91c1c; }}
+  :root {{ --ink:#1c2524; --mut:#4d5e5b; --line:#d5e0dd; --bg:#f3f7f5; --card:#ffffff; --accent:#075f58; --accent-text:#ffffff; --soft:#e5f2ee; --ok-bg:#d8f5eb; --ok-text:#135c48; --warn-bg:#fff0ce; --warn-text:#754000; --bad-bg:#fee4e2; --bad-text:#922b25; --chip-bg:#e5eeec; --chip-text:#274c46; }}
+  @media (prefers-color-scheme: dark) {{ :root {{ --ink:#edf5f2; --mut:#bdccc7; --line:#40544e; --bg:#111d1a; --card:#1b2a26; --accent:#a6e6d5; --accent-text:#10251e; --soft:#29473e; --ok-bg:#204d3d; --ok-text:#d0f7e5; --warn-bg:#5b431b; --warn-text:#ffedc1; --bad-bg:#5b302d; --bad-text:#ffe0dc; --chip-bg:#304840; --chip-text:#d7f3e9; }} }}
   * {{ box-sizing:border-box; }}
   body {{ margin:0; font:15px/1.5 ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif; color:var(--ink); background:var(--bg); }}
-  header {{ border-bottom:1px solid var(--line); background:#fff; padding:14px 28px; display:flex; justify-content:space-between; align-items:baseline; }}
-  header .brand {{ font-weight:650; letter-spacing:-0.01em; }}
-  header .tag {{ font-size:12px; color:var(--warn); text-transform:uppercase; letter-spacing:.08em; }}
-  main {{ max-width:900px; margin:36px auto; padding:0 24px; }}
-  h1 {{ font-size:24px; letter-spacing:-0.02em; margin:0 0 6px; }}
+  header {{ background:var(--card); border-bottom:1px solid var(--line); padding:18px max(24px,calc((100% - 1000px)/2)); display:flex; justify-content:space-between; align-items:center; gap:16px; flex-wrap:wrap; }}
+  .brand {{ font-size:19px; font-weight:750; letter-spacing:-.03em; }}
+  .tag {{ color:var(--warn-text); background:var(--warn-bg); border-radius:6px; padding:6px 10px; font-size:12px; font-weight:700; }}
+  main {{ max-width:1000px; margin:32px auto; padding:0 24px; }}
+  h1 {{ font-size:28px; letter-spacing:-.03em; margin:0 0 6px; }}
   p.sub {{ color:var(--mut); margin:0 0 24px; }}
-  nav a {{ color:var(--accent); text-decoration:none; margin-right:18px; font-weight:550; }}
-  .card {{ background:#fff; border:1px solid var(--line); border-radius:10px; padding:20px; margin-bottom:16px; }}
-  .grid {{ display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:16px; }}
+  nav {{ display:flex; flex-wrap:wrap; gap:0 4px; border-bottom:1px solid var(--line); margin-bottom:28px; }}
+  nav a {{ color:var(--mut); text-decoration:none; white-space:nowrap; padding:12px 14px; font-weight:650; border-bottom:3px solid transparent; }}
+  nav a:hover {{ color:var(--ink); background:var(--soft); }}
+  nav a[aria-current] {{ color:var(--accent); border-color:var(--accent); }}
+  .card {{ background:var(--card); border:1px solid var(--line); border-radius:12px; padding:20px; margin-bottom:16px; }}
+  .grid {{ display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:16px; margin-bottom:16px; }}
+  .grid .card {{ margin:0; }}
+  .stat-number {{ font-size:32px; font-weight:750; font-variant-numeric:tabular-nums; line-height:1.2; margin:8px 0; }}
+  .table-wrap {{ overflow-x:auto; }}
   table {{ width:100%; border-collapse:collapse; font-size:14px; }}
-  th,td {{ text-align:left; padding:8px 10px; border-bottom:1px solid var(--line); }}
-  th {{ color:var(--mut); font-weight:550; font-size:12px; text-transform:uppercase; letter-spacing:.05em; }}
-  .pill {{ display:inline-block; padding:2px 9px; border-radius:999px; font-size:12px; font-weight:600; }}
-  .pill.ok {{ background:#ccfbf1; color:#115e59; }}
-  .pill.warn {{ background:#fef3c7; color:var(--warn); }}
-  .pill.bad {{ background:#fee2e2; color:var(--bad); }}
-  input,textarea {{ width:100%; padding:9px 11px; border:1px solid var(--line); border-radius:8px; font:inherit; background:#fff; }}
-  label {{ display:block; font-size:13px; font-weight:550; margin:12px 0 4px; }}
-  button {{ background:var(--accent); color:#fff; border:0; border-radius:8px; padding:10px 18px; font:inherit; font-weight:600; cursor:pointer; margin-top:14px; }}
+  th,td {{ text-align:left; padding:12px 10px; border-bottom:1px solid var(--line); }}
+  th {{ color:var(--mut); font-weight:700; font-size:12px; text-transform:uppercase; letter-spacing:.05em; white-space:nowrap; }}
+  td:first-child, td:nth-child(3) {{ white-space:nowrap; }}
+  .audit-table td:nth-child(3) {{ white-space:normal; min-width:200px; }}
+  .audit-table td:first-child {{ font-family:ui-monospace,monospace; font-size:12px; }}
+  .event {{ display:inline-block; white-space:nowrap; background:var(--chip-bg); color:var(--chip-text); padding:4px 8px; border-radius:6px; font:600 12px ui-monospace,monospace; }}
+  .pill {{ display:inline-block; padding:4px 10px; border-radius:999px; font-size:12px; font-weight:700; }}
+  .pill.ok {{ background:var(--ok-bg); color:var(--ok-text); }}
+  .pill.warn {{ background:var(--warn-bg); color:var(--warn-text); }}
+  .pill.bad {{ background:var(--bad-bg); color:var(--bad-text); }}
+  input,textarea {{ width:100%; min-height:44px; padding:9px 11px; border:1px solid var(--mut); border-radius:8px; font:inherit; color:var(--ink); background:var(--card); }}
+  label {{ display:block; font-size:13px; font-weight:650; margin:16px 0 5px; }}
+  button {{ background:var(--accent); color:var(--accent-text); border:0; border-radius:8px; min-height:44px; padding:10px 18px; font:inherit; font-weight:700; cursor:pointer; margin-top:14px; }}
+  button:hover {{ opacity:.88; }} button:active {{ transform:translateY(1px); }}
+  :focus-visible {{ outline:3px solid var(--accent); outline-offset:3px; }}
   .muted {{ color:var(--mut); font-size:13px; }}
-  code {{ background:#f5f5f4; padding:1px 6px; border-radius:5px; font-size:13px; }}
+  code {{ background:var(--soft); padding:2px 6px; border-radius:5px; font-size:13px; }}
+  .vendor {{ display:flex; flex-direction:column; }} .vendor form {{ margin-top:auto; }}
+  .vendor .pill {{ align-self:flex-start; margin-top:10px; }}
+  @media (max-width:480px) {{ main {{ padding:0 16px; margin:20px auto; }} header {{ padding:16px; }} .card {{ padding:16px; }} }}
 </style></head>
 <body>
-<header><span class="brand">MillsLab Clinic</span><span class="tag">Synthetic lab - no real patients</span></header>
+<header><span class="brand">MillsLab Clinic</span><span class="tag">Synthetic data only — never enter real patient information</span></header>
 <main>
-<nav><a href="/">Dashboard</a><a href="/intake">Patient intake</a><a href="/scribe">AI scribe</a><a href="/audit">Audit log</a><a href="/healthz">Health</a></nav>
-<div style="height:20px"></div>
+<nav aria-label="Main navigation">{nav}</nav>
 {body}
 </main></body></html>"""
 
@@ -309,12 +335,12 @@ def dashboard():
 <h1>Clinic dashboard</h1>
 <p class="sub">Synthetic patient roster and data movement overview.</p>
 <div class="grid">
-  <div class="card"><div class="muted">Patients</div><div style="font-size:28px;font-weight:650">{len(patients)}</div></div>
-  <div class="card"><div class="muted">Web intake submissions</div><div style="font-size:28px;font-weight:650">{intakes}</div></div>
-  <div class="card"><div class="muted">Scribe transmissions</div><div style="font-size:28px;font-weight:650">{tx}</div>
+  <div class="card"><div class="muted">Patients</div><div class="stat-number">{len(patients)}</div></div>
+  <div class="card"><div class="muted">Web intake submissions</div><div class="stat-number">{intakes}</div></div>
+  <div class="card"><div class="muted">Scribe transmissions</div><div class="stat-number">{tx}</div>
     <span class="pill warn">BAA unverified</span></div>
 </div>
-<div class="card"><table><tr><th>MRN</th><th>Name</th><th>DOB</th><th>Payer</th></tr>{rows}</table></div>
+<div class="card table-wrap"><table><tr><th scope="col">MRN</th><th scope="col">Name</th><th scope="col">DOB</th><th scope="col">Payer</th></tr>{rows}</table></div>
 <div class="card"><strong>What this lab demonstrates</strong>
 <p class="muted">Patient-adjacent data leaves this EHR through a public web intake form and an AI scribe
 integration. Velari's job in a real clinic: map those paths, verify vendor BAAs, and produce dated evidence.</p></div>"""
@@ -323,7 +349,7 @@ integration. Velari's job in a real clinic: map those paths, verify vendor BAAs,
 
 def intake_form(success=False):
     banner = (
-        '<div class="card"><span class="pill ok">Intake recorded</span> '
+        '<div class="card" role="status"><span class="pill ok">Intake recorded</span> '
         '<span class="muted">Synthetic record stored. In this lab nothing is encrypted at rest '
         "and nothing is ever deleted.</span></div>"
         if success
@@ -336,10 +362,10 @@ def intake_form(success=False):
 <div class="card"><p class="muted"><strong>Synthetic data only.</strong> Use invented names and dates.
 Submissions that look like real identifiers (SSN- or card-shaped numbers) are rejected.</p>
 <form method="post" action="/intake">
-<label>Full name</label><input name="name" maxlength="{MAX_NAME_LEN}" required>
-<label>Date of birth</label><input name="dob" type="date" required>
-<label>Phone</label><input name="phone" maxlength="{MAX_PHONE_LEN}" required>
-<label>Reason for visit</label><textarea name="reason" rows="3" maxlength="{MAX_REASON_LEN}" required></textarea>
+<label for="name">Full name</label><input id="name" name="name" maxlength="{MAX_NAME_LEN}" required>
+<label for="dob">Date of birth</label><input id="dob" name="dob" type="date" required>
+<label for="phone">Phone</label><input id="phone" name="phone" maxlength="{MAX_PHONE_LEN}" required>
+<label for="reason">Reason for visit</label><textarea id="reason" name="reason" rows="3" maxlength="{MAX_REASON_LEN}" required></textarea>
 <button type="submit">Submit intake</button>
 </form></div>"""
     return page("Patient intake", body)
@@ -350,7 +376,7 @@ def scribe_page():
     for v in SCRIBE_VENDORS:
         baa = v["baa"]
         pill = "ok" if baa == "verified" else ("warn" if baa in ("requested", "unverified") else "bad")
-        cards += f"""<div class="card"><strong>{html.escape(v["name"])}</strong>
+        cards += f"""<div class="card vendor"><strong>{html.escape(v["name"])}</strong>
         <span class="pill {pill}">BAA {html.escape(baa)}</span>
         <p class="muted">{html.escape(v["note"])}</p>
         <p class="muted">Status: <code>{html.escape(v["status"])}</code> - Subprocessors: <code>{html.escape(v["subprocessors"])}</code></p>
@@ -379,7 +405,7 @@ def audit_page():
                     events.append(entry)
     rows = "".join(
         f"<tr><td>{html.escape(str(e.get('ts', '')))}</td>"
-        f"<td>{html.escape(str(e.get('event', '')))}</td>"
+        f"<td><span class='event'>{html.escape(str(e.get('event', '')))}</span></td>"
         f"<td>{html.escape(str(e.get('detail', '')))}</td>"
         f"<td>{html.escape(str(e.get('remote', '')))}</td></tr>"
         for e in reversed(events)
@@ -387,7 +413,7 @@ def audit_page():
     body = f"""
 <h1>Access &amp; transmission log</h1>
 <p class="sub">Newest first. This is the kind of metadata-only evidence Velari reviews - no patient content.</p>
-<div class="card"><table><tr><th>Time (UTC)</th><th>Event</th><th>Detail</th><th>Remote</th></tr>
+<div class="card table-wrap"><table class="audit-table"><tr><th scope="col">Time (UTC)</th><th scope="col">Event</th><th scope="col">Detail</th><th scope="col">Remote</th></tr>
 {rows or '<tr><td colspan="4" class="muted">No events yet.</td></tr>'}</table></div>"""
     return page("Audit log", body)
 

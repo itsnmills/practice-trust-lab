@@ -47,11 +47,10 @@ def drift_block(drift: dict[str, Any], collected_prose: str) -> str:
 
 def summary_section(counts: dict[str, Any], decisions: int, drift_sentence: str) -> str:
     p1, p2, p3, p4 = (counts.get(k, 0) for k in ("high", "medium", "low", "info"))
-    count_line = (
-        f'<span class="count"><span class="ck hot">P1</span><span class="cv">{esc(p1)}</span></span>'
-        f'<span class="count"><span class="ck">P2</span><span class="cv">{esc(p2)}</span></span>'
-        f'<span class="count"><span class="ck">P3</span><span class="cv">{esc(p3)}</span></span>'
-        f'<span class="count"><span class="ck">P4</span><span class="cv">{esc(p4)}</span></span>'
+    count_line = "".join(
+        f'<span class="count"><span class="ck">Priority {i}<small>{label}</small></span>'
+        f'<span class="cv">{esc(value)}</span></span>'
+        for i, (label, value) in enumerate((("High", p1), ("Medium", p2), ("Low", p3), ("Informational", p4)), 1)
     )
     summary = (
         f"{esc(p1)} priority-1 finding{'s' if p1 != 1 else ''}; "
@@ -68,9 +67,10 @@ def summary_section(counts: dict[str, Any], decisions: int, drift_sentence: str)
 def decisions_section(decisions: list[dict[str, Any]]) -> str:
     clause_items = ""
     for i, decision in enumerate(decisions, 1):
-        verdict_cls = "hot" if decision["state"] == "block" else ""
-        refs = " ".join(decision.get("refs", []))
-        xref = f' <span class="xref">&rarr; {esc(refs)}</span>' if refs else ""
+        verdict_cls = esc(decision["state"])
+        refs = decision.get("refs", [])
+        links = " ".join(f'<a href="#{esc(ref)}">{esc(ref)}</a>' for ref in refs)
+        xref = f' <span class="xref">&rarr; {links}</span>' if refs else ""
         clause_items += f"""<div class="clause">
         <div class="clause-rail"><span class="cnum">2.{i}</span><span class="verdict {verdict_cls}">{esc(decision["state"].upper())}</span></div>
         <div class="clause-body">
@@ -96,15 +96,15 @@ def schedule_section(rows: list[dict[str, Any]], collected_prose: str) -> str:
             label = SEVERITY_LABEL[severity]
             table_groups += (
                 f'<tr class="pgroup"><td colspan="4"><span class="ptag {tag_cls}">{tag}</span>'
-                f"{label} &mdash; act by {esc(row['due'])}</td></tr>"
+                f"{esc(label)} &mdash; act by {esc(row['due'])}</td></tr>"
             )
         items_html = ""
         if row["items"]:
             items_html = "<div class='enum'>" + "<br>".join(esc(x) for x in row["items"]) + "</div>"
-        table_groups += f"""<tr>
+        table_groups += f"""<tr id="{esc(row["ref"])}" class="severity-{esc(severity)}">
         <td class="ref"><span class="mono refnum">{esc(row["ref"])}</span></td>
         <td class="finding">
-          <strong>{esc(row["title"])}</strong>{items_html}
+          <strong>{esc(row["title"])}</strong><span class="mobile-lane">Owner lane: {esc(row["lane"])}</span>{items_html}
           <p class="ask">{esc(row["ask"])}</p>
           <p class="proof"><span class="plabel">Proof:</span> {esc(row["proof"])}</p>
           <p class="ev">Evidence: {esc(row["confidence"])}{cite_html(row)}</p>

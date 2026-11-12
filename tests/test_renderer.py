@@ -332,3 +332,34 @@ def test_renamed_krbtgt_rule_id_still_renders_as_the_hygiene_row():
     assert rule_for_finding(old).group == "hygiene"
     assert rule_for_finding(old).lane == "MSP"
     assert {c.section for c in rule_for_finding(old).hipaa} == {"164.312(d)"}
+
+
+def test_dark_and_badge_palettes_meet_wcag_aa():
+    css = r.read_css()
+    block = re.search(r"@media \(prefers-color-scheme: dark\)\s*\{\s*:root\s*\{(.*?)\}", css, re.S)
+    assert block
+    dark = dict(re.findall(r"--([a-z-]+):\s*(#[0-9a-fA-F]{6})", block.group(1)))
+    for name in ("ink", "body", "muted", "faint", "hot"):
+        assert _contrast(dark[name], dark["paper"]) >= 4.5, name
+    for palette in (_css_vars(), dark):
+        for name in ("block", "review", "allow"):
+            assert _contrast(palette[f"{name}-text"], palette[f"{name}-fill"]) >= 4.5, name
+        assert _contrast(palette["ink"], palette["tag-fill"]) >= 4.5
+
+
+def test_owner_lane_survives_on_small_screens(sample):
+    """The lane column is hidden on phones, so every schedule row must repeat it inside the finding cell."""
+    out = r.render(sample, now=FIXED_NOW)
+    rows = re.findall(r'<tr[^>]*>\s*<td class="ref">.*?</tr>', out, re.S)
+    assert rows
+    assert all('class="mobile-lane"' in row for row in rows)
+    css = r.read_css()
+    assert ".sched td.lane { display: none; }" in css
+    assert ".mobile-lane { display: block;" in css
+
+
+def test_schedule_stacks_instead_of_squeezing_four_columns_on_phones():
+    css = r.read_css()
+    phone = css[css.index("@media screen and (max-width: 760px)") :]
+    assert ".sched tr { display: grid;" in phone
+    assert "table-layout: fixed" not in phone
