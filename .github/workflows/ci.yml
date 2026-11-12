@@ -195,7 +195,7 @@ jobs:
         # unpinned APT/APK packages (warning-level) for a reproducible demo.
         run: |
           docker run --rm -v "$PWD:/mnt" -w /mnt hadolint/hadolint:v2.12.0 \
-            --failure-threshold error \
+            hadolint --failure-threshold error \
             samba-dc/Dockerfile clinic-ehr/Dockerfile endpoint/Dockerfile
 
   packet:

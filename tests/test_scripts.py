@@ -77,7 +77,17 @@ def test_teardown_dry_run_does_not_need_a_docker_daemon():
 def test_teardown_dry_run_with_purge_data_is_safe():
     result = run("bash", str(ROOT / "scripts" / "teardown.sh"), "--dry-run", "--purge-data")
     assert result.returncode == 0
-    assert "rm -rf clinic-ehr/data" in result.stdout
+    # teardown only lists directories that exist, so a fresh checkout (CI) has none.
+    for path in (
+        "clinic-ehr/data",
+        "workstation-01/home",
+        "workstation-01/logs",
+        "frontdesk-01/home",
+        "frontdesk-01/logs",
+        "msp-jump-01/home",
+        "msp-jump-01/logs",
+    ):
+        assert (f"rm -rf {path}" in result.stdout) == (ROOT / path).exists(), path
     assert "nothing was changed" in result.stdout
 
 
