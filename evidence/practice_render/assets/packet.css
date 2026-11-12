@@ -2,6 +2,8 @@
   --ink: #17191d; --body: #3a3f45; --muted: #6d737a; --faint: #6f757c;
   --hair: rgba(23,25,29,0.16); --hair-soft: rgba(23,25,29,0.08);
   --paper: #fcfbf9; --hot: #8f2f26; --gold: #c9a84c;
+  --block-text: #76241d; --block-fill: #fff0ee; --review-text: #664600; --review-fill: #fff5da;
+  --allow-text: #18572e; --allow-fill: #eaf8ed; --tag-fill: #f0eeea; --target-fill: #fff8df;
   --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
   --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
 }
@@ -163,4 +165,51 @@ table { width: 100%; border-collapse: collapse; }
   section.sec-pagebreak { break-before: page; page-break-before: always; }
   thead { display: table-header-group; }
   tr { break-inside: avoid; page-break-inside: avoid; }
+}
+
+/* Editorial refinements */
+.kvb { max-width: none; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0 28px; }
+.kvb dt { white-space: nowrap; }
+.counts { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; border: 0; padding: 0; }
+.count { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 14px; border: 1px solid var(--hair); border-top: 3px solid var(--ink); }
+.ck { font-size: 12px; color: var(--ink); }
+.ck small { display: block; font-size: 11px; font-weight: 400; text-transform: none; letter-spacing: 0; color: var(--muted); }
+.cv { font-size: 27px; }
+.verdict, .ptag { display: inline-block; width: fit-content; padding: 2px 6px; border: 1px solid currentColor; border-radius: 3px; font-weight: 700; }
+.verdict.block { color: var(--block-text); background: var(--block-fill); }
+.verdict.review { color: var(--review-text); background: var(--review-fill); }
+.verdict.allow { color: var(--allow-text); background: var(--allow-fill); }
+.ptag { color: var(--ink); background: var(--tag-fill); }
+.ref { white-space: nowrap; }
+.mobile-lane { display: none; }
+.finding .ev { border-left: 2px solid var(--hair); padding-left: 8px; }
+a { color: var(--hot); text-decoration-thickness: 1px; text-underline-offset: 3px; }
+a:hover { text-decoration-thickness: 2px; }
+.sched tr:target { outline: 2px solid var(--gold); outline-offset: -2px; background: var(--target-fill); }
+.severity-high .ref { border-left: 3px solid var(--hot); padding-left: 6px; }
+@media (max-width: 760px) {
+  .kvb { grid-template-columns: 1fr; }
+  .counts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .mobile-lane { display: block; margin-top: 4px; color: var(--muted); font-size: 12px; }
+}
+@media (prefers-color-scheme: dark) {
+  :root { --ink: #f4f1eb; --body: #dedad3; --muted: #bdbab4; --faint: #bdbab4; --paper: #1c1e21; --hot: #ffaaa0; --gold: #e0c373; --hair: rgba(255,255,255,0.25); --hair-soft: rgba(255,255,255,0.13); --block-text: #ffd5cf; --block-fill: #61251f; --review-text: #ffe2a0; --review-fill: #59400e; --allow-text: #c8f2d2; --allow-fill: #174b2a; --tag-fill: #393b3d; --target-fill: #4b4024; }
+}
+@media print {
+  :root { --ink: #17191d; --body: #3a3f45; --muted: #6d737a; --faint: #6f757c; --paper: #ffffff; --hot: #8f2f26; --gold: #9a7723; --hair: rgba(23,25,29,0.16); --hair-soft: rgba(23,25,29,0.08); --block-text: #76241d; --block-fill: #fff0ee; --review-text: #664600; --review-fill: #fff5da; --allow-text: #18572e; --allow-fill: #eaf8ed; --tag-fill: #f0eeea; --target-fill: #fff8df; }
+}
+@media screen and (max-width: 760px) {
+  /* Four columns cannot fit a phone, so each schedule row becomes a stacked block:
+     ref and due on one line, then the finding (which carries the owner lane). The
+     header row stays in the DOM for assistive tech but is visually hidden. */
+  .sched, .sched tbody { display: block; }
+  .sched thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .sched tr { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 4px 12px; padding: 14px 0; border-bottom: 1px solid var(--hair-soft); }
+  .sched tr.pgroup { display: block; padding: 0; }
+  .sched td { display: block; padding: 0; border: 0; width: auto; }
+  .sched td.ref { grid-column: 1; grid-row: 1; }
+  .sched td.due { grid-column: 2; grid-row: 1; text-align: right; white-space: normal; }
+  .sched td.finding { grid-column: 1 / -1; grid-row: 2; }
+  .sched td.lane { display: none; }
+  .evidence-table { overflow-wrap: anywhere; }
 }
