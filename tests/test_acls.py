@@ -26,7 +26,7 @@ def ace(sddl, index=0):
 
 
 def rules(findings):
-    return [f.extra["rule_id"] for f in findings]
+    return [f.rule_id for f in findings]
 
 
 def test_parse_sddl_owner_group_flags_and_aces():
@@ -175,9 +175,9 @@ def descriptor(*aces):
 
 def test_everyone_write_is_high_even_without_a_model():
     found = acls.evaluate_share(share(), descriptor("(A;;FA;;;WD)"), None)
-    [broad] = [f for f in found if f.extra["rule_id"] == "ACL-EVERYONE-WRITE"]
+    [broad] = [f for f in found if f.rule_id == "ACL-EVERYONE-WRITE"]
     assert broad.severity == "high"
-    assert broad.extra["subject"] == "ClinicalShare:Everyone"
+    assert broad.subject == "ClinicalShare:Everyone"
     assert "164.312(a)(1)" in registry_cites("ACL-EVERYONE-WRITE")
 
 
@@ -250,7 +250,7 @@ def test_admin_principals_and_deny_aces_are_ignored():
 
 def test_null_dacl_is_high():
     parsed = acls.parse_sddl("D:")
-    [finding] = [f for f in acls.evaluate_share(share(), parsed, MODEL) if f.extra["rule_id"] == "ACL-NULL-DACL"]
+    [finding] = [f for f in acls.evaluate_share(share(), parsed, MODEL) if f.rule_id == "ACL-NULL-DACL"]
     assert finding.severity == "high"
 
 

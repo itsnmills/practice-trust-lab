@@ -78,10 +78,11 @@ probe() {
   user=$2
   password=$3
   share=$4
+  smb_cmd=${5:-ls}
   cred=$(mktemp) || { echo "PROBE_ERROR|mktemp failed"; return 0; }
   chmod 600 "$cred"
   printf 'username=%s\npassword=%s\ndomain=MILLSLAB\n' "$user" "$password" > "$cred"
-  out=$(smbclient "//dc1.millslab.internal/$share" -A "$cred" -c 'ls' 2>&1)
+  out=$(smbclient "//dc1.millslab.internal/$share" -A "$cred" -c "$smb_cmd" 2>&1)
   rc=$?
   rm -f "$cred"
   reason=ok
@@ -96,6 +97,9 @@ probe clinical_allow jchen "$TECH" ClinicalShare
 probe it_deny nmills "$TECH" ClinicalShare
 probe it_allow nmills "$TECH" ITShare
 probe temp_deny malvarez "$TEMP" ClinicalShare
+probe it_frontoffice_read nmills "$TECH" FrontOfficeShare
+probe it_frontoffice_write_deny nmills "$TECH" FrontOfficeShare 'put /etc/hostname boundary-probe.txt'
+probe it_itshare_write_allow nmills "$TECH" ITShare 'put /etc/hostname boundary-probe.txt; rm boundary-probe.txt'
 
 out=$(smbclient -N "//dc1.millslab.internal/ClinicalShare" -c 'ls' 2>&1)
 rc=$?
@@ -126,6 +130,19 @@ else
         ;;
       it_allow)
         if [ "$rc" = "0" ]; then ok "IT user can read ITShare"; else bad "IT user denied ITShare ($reason)"; fi
+        ;;
+      it_frontoffice_read)
+        if [ "$rc" = "0" ]; then ok "IT user can read FrontOfficeShare"; else bad "IT user denied read on FrontOfficeShare ($reason)"; fi
+        ;;
+      it_frontoffice_write_deny)
+        if [ "$rc" != "0" ] && printf '%s' "$reason" | grep -q 'ACCESS_DENIED'; then
+          ok "IT user cannot write to FrontOfficeShare ($reason)"
+        else
+          bad "IT user expected ACCESS_DENIED writing FrontOfficeShare, got rc=$rc $reason"
+        fi
+        ;;
+      it_itshare_write_allow)
+        if [ "$rc" = "0" ]; then ok "IT user can write to ITShare (control for the denial above)"; else bad "IT user denied write on ITShare ($reason)"; fi
         ;;
       temp_deny)
         if [ "$rc" != "0" ] && printf '%s' "$reason" | grep -q 'NT_STATUS_'; then

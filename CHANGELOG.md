@@ -27,6 +27,12 @@ package.
 - **Lab hardening and checks:** hardened mock EHR with tests, `teardown.sh`,
   `verify-boundaries.sh`, healthchecks, secrets kept out of `docker inspect`
   (`docs/LAB-SECURITY.md`).
+- **IT is read-only on `FrontOfficeShare`.** Dropped `force group` from the share
+  definitions: Samba adds a forced group to every connecting user's token, which
+  silently overrode the read-only NT ACL entry. Verified live with real users
+  (read, overwrite, delete and subdirectory writes), covered by new
+  `verify-boundaries.sh` probes. Re-running provisioning removes the line from
+  existing labs.
 - **Real NT ACLs on the share directories.** The old `chgrp` failed silently and left
   every share world-readable at the filesystem layer, gated only by `smb.conf`.
 

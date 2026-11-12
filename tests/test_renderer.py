@@ -7,7 +7,8 @@ from pathlib import Path
 import hipaa_crosswalk as hc
 import pytest
 import render_practice_snapshot as r
-from practice_render import RULES, rule_for_detail
+from practice_render import RULES, rule_for_detail, rule_for_finding
+from practice_render.data import build_rows
 
 SAMPLE = Path(__file__).resolve().parent.parent / "examples" / "sample-snapshot.json"
 FIXED_NOW = datetime(2026, 11, 12, 12, 0, tzinfo=timezone.utc)
@@ -305,3 +306,29 @@ def test_footer_omits_ledger_when_absent_or_not_supplied(sample):
 
 def test_footer_singular_entry_wording(sample):
     assert "1 entry &middot;" in r.render(sample, ledger_head=_head(entry_count=1))
+
+
+def _rendered_cites(rule_id: str) -> set[str]:
+    snap = {
+        "collected_at": "2026-11-12T00:00:00+00:00",
+        "findings": [{"rule_id": rule_id, "severity": "low", "detail": "x"}],
+    }
+    [row] = build_rows(snap, snap["collected_at"])
+    return {c.section for c in row["hipaa"]}
+
+
+def test_rendered_rows_use_per_rule_citations_not_group_defaults():
+    # POL-PLAINTEXT is the policy rule that is about encryption; its group default no longer is.
+    assert "164.312(a)(2)(iv)" in _rendered_cites("POL-PLAINTEXT")
+    assert "164.312(a)(2)(iv)" not in _rendered_cites("POL-MIN-LENGTH")
+    # HYG-SMB-SIGNING is narrowed to transmission security; the hygiene group also cites authentication.
+    assert _rendered_cites("HYG-SMB-SIGNING") == {"164.312(e)(1)"}
+
+
+def test_renamed_krbtgt_rule_id_still_renders_as_the_hygiene_row():
+    old = {"rule_id": "HYG-KRBTOG-AGE", "severity": "medium", "detail": "krbtgt password is 400 days old"}
+    new = dict(old, rule_id="HYG-KRBTGT-AGE")
+    assert rule_for_finding(old) is rule_for_finding(new)
+    assert rule_for_finding(old).group == "hygiene"
+    assert rule_for_finding(old).lane == "MSP"
+    assert {c.section for c in rule_for_finding(old).hipaa} == {"164.312(d)"}

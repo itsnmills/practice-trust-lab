@@ -4,6 +4,7 @@ dev tooling is configured where the workflows expect it."""
 from __future__ import annotations
 
 import importlib
+import os
 import shutil
 import subprocess
 import sys
@@ -90,13 +91,15 @@ def test_legacy_script_entry_style_still_works(script: str) -> None:
 
 
 def test_installed_console_scripts_work_when_available() -> None:
-    collect = shutil.which("velari-collect")
+    # CI invokes .venv/bin/python without activating the venv, so PATH alone misses the scripts.
+    search = f"{Path(sys.executable).parent}:{os.environ.get('PATH', '')}"
+    collect = shutil.which("velari-collect", path=search)
     if not collect:  # pragma: no cover - only in a bare checkout
         pytest.skip("project is not installed in this environment")
     result = subprocess.run([collect, "--help"], capture_output=True, text=True, timeout=60)
     assert result.returncode == 0, result.stderr
     assert "--verify-ledger" in result.stdout
-    verify = shutil.which("velari-verify")
+    verify = shutil.which("velari-verify", path=search)
     assert verify, "velari-verify console script was not installed"
     result = subprocess.run([verify, "--help"], capture_output=True, text=True, timeout=60)
     assert result.returncode == 0, result.stderr

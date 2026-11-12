@@ -10,7 +10,6 @@ from .rules import (
     SEVERITY_ORDER,
     SEVERITY_TAG,
     Rule,
-    cites_for,
     rule_for_finding,
 )
 from .text import due_date, extract_item
@@ -72,7 +71,7 @@ def _row(rule: Rule, severity: str, detail: str, items: list[str], collected_iso
         "proof": rule.proof,
         "due": due_date(collected_iso, rule.due),
         "items": items,
-        "hipaa": cites_for(rule.group),
+        "hipaa": rule.hipaa,
     }
 
 

@@ -31,7 +31,7 @@ Lowest function level of a DC: (Windows) 2008 R2
 
 
 def rules(findings):
-    return [f.extra["rule_id"] for f in findings]
+    return [f.rule_id for f in findings]
 
 
 # --- parsing ---------------------------------------------------------------
@@ -99,18 +99,18 @@ def test_clean_hygiene_has_no_findings():
 
 def test_function_level_below_baseline_and_unparseable():
     [old] = hygiene.evaluate({"domain function level": "(Windows) 2008 R2"}, GOOD_SMB, 30)
-    assert (old.extra["rule_id"], old.severity) == ("HYG-DOMAIN-FUNCTION-LEVEL", "low")
+    assert (old.rule_id, old.severity) == ("HYG-DOMAIN-FUNCTION-LEVEL", "low")
     [unknown] = hygiene.evaluate({}, GOOD_SMB, 30)
-    assert unknown.extra["rule_id"] == "HYG-DOMAIN-FUNCTION-LEVEL"
+    assert unknown.rule_id == "HYG-DOMAIN-FUNCTION-LEVEL"
     assert "could not be parsed" in unknown.detail
 
 
 def test_krbtgt_age_boundaries():
     assert hygiene.evaluate({"domain function level": "2016"}, GOOD_SMB, 180) == []
     [old] = hygiene.evaluate({"domain function level": "2016"}, GOOD_SMB, 181)
-    assert (old.extra["rule_id"], old.severity) == ("HYG-KRBTOG-AGE", "medium")
+    assert (old.rule_id, old.severity) == ("HYG-KRBTGT-AGE", "medium")
     [unknown] = hygiene.evaluate({"domain function level": "2016"}, GOOD_SMB, None)
-    assert unknown.extra["rule_id"] == "HYG-KRBTOG-AGE"
+    assert unknown.rule_id == "HYG-KRBTGT-AGE"
     assert unknown.severity == "low"
 
 
@@ -118,33 +118,23 @@ def test_smb_signing_missing_and_not_mandatory():
     smb = dict(GOOD_SMB)
     del smb["server signing"]
     [missing] = [
-        f
-        for f in hygiene.evaluate({"domain function level": "2016"}, smb, 30)
-        if f.extra["rule_id"] == "HYG-SMB-SIGNING"
+        f for f in hygiene.evaluate({"domain function level": "2016"}, smb, 30) if f.rule_id == "HYG-SMB-SIGNING"
     ]
     assert missing.severity == "low"
     smb["server signing"] = "auto"
-    [weak] = [
-        f
-        for f in hygiene.evaluate({"domain function level": "2016"}, smb, 30)
-        if f.extra["rule_id"] == "HYG-SMB-SIGNING"
-    ]
+    [weak] = [f for f in hygiene.evaluate({"domain function level": "2016"}, smb, 30) if f.rule_id == "HYG-SMB-SIGNING"]
     assert weak.severity == "medium"
 
 
 def test_ldap_strong_auth_is_high_when_disabled():
     smb = dict(GOOD_SMB, **{"ldap server require strong auth": "no"})
     [finding] = [
-        f
-        for f in hygiene.evaluate({"domain function level": "2016"}, smb, 30)
-        if f.extra["rule_id"] == "HYG-LDAP-STRONG-AUTH"
+        f for f in hygiene.evaluate({"domain function level": "2016"}, smb, 30) if f.rule_id == "HYG-LDAP-STRONG-AUTH"
     ]
     assert finding.severity == "high"
     smb["ldap server require strong auth"] = "allow_sasl_over_tls"
     [partial] = [
-        f
-        for f in hygiene.evaluate({"domain function level": "2016"}, smb, 30)
-        if f.extra["rule_id"] == "HYG-LDAP-STRONG-AUTH"
+        f for f in hygiene.evaluate({"domain function level": "2016"}, smb, 30) if f.rule_id == "HYG-LDAP-STRONG-AUTH"
     ]
     assert partial.severity == "medium"
 
@@ -158,7 +148,7 @@ def test_ldap_strong_auth_absent_uses_samba_default():
 def test_ntlm_auth_policy():
     smb = dict(GOOD_SMB, **{"ntlm auth": "yes"})
     [finding] = [
-        f for f in hygiene.evaluate({"domain function level": "2016"}, smb, 30) if f.extra["rule_id"] == "HYG-NTLM-AUTH"
+        f for f in hygiene.evaluate({"domain function level": "2016"}, smb, 30) if f.rule_id == "HYG-NTLM-AUTH"
     ]
     assert finding.severity == "medium"
     smb["ntlm auth"] = "no"
@@ -169,13 +159,13 @@ def test_smb1_severity_depends_on_which_side():
     [server] = [
         f
         for f in hygiene.evaluate({"domain function level": "2016"}, {"server min protocol": "NT1"}, 30)
-        if f.extra["rule_id"] == "HYG-SMB1"
+        if f.rule_id == "HYG-SMB1"
     ]
     assert server.severity == "high"
     [client] = [
         f
         for f in hygiene.evaluate({"domain function level": "2016"}, {"client min protocol": "SMB1"}, 30)
-        if f.extra["rule_id"] == "HYG-SMB1"
+        if f.rule_id == "HYG-SMB1"
     ]
     assert client.severity == "medium"
 
@@ -242,4 +232,4 @@ def test_collect_still_evaluates_smb_when_level_and_krbtgt_fail(monkeypatch):
     found_rules = [f["rule_id"] for f in out["findings"]]
     assert "HYG-SMB-SIGNING" in found_rules
     assert "HYG-DOMAIN-FUNCTION-LEVEL" in found_rules
-    assert "HYG-KRBTOG-AGE" in found_rules
+    assert "HYG-KRBTGT-AGE" in found_rules

@@ -16,11 +16,12 @@ Output contract (stable for scripts and CI):
   - ``2`` preflight failed (Docker CLI/daemon unavailable or the DC container is
     not running), a ``--validate`` file could not be read, or a checkpoint
     operation could not run (missing ledger, bad key, missing signing input);
-    nothing was collected.
+    nothing was collected;
+  - ``3`` only with ``--strict``: the snapshot was written but a section failed.
 
 A section that raises unexpectedly is a degraded run, not a fatal error: its
 section is emptied, a medium finding records the gap, the remaining sections are
-still collected, and the exit code stays ``0``.
+still collected, and the exit code stays ``0`` unless ``--strict`` is given.
 
 Artifact and ledger locations can be overridden with ``--artifacts-dir`` /
 ``--ledger`` or the ``EVIDENCE_ARTIFACTS_DIR`` / ``EVIDENCE_LEDGER`` environment
@@ -49,6 +50,7 @@ from .snapshot import build
 EXIT_OK = 0
 EXIT_LEDGER_INVALID = 1
 EXIT_PREFLIGHT_FAILED = 2
+EXIT_DEGRADED = 3
 
 
 def _env_path(name: str, default: Path) -> Path:
@@ -79,6 +81,11 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--hours", type=int, default=24, help="auth log window in hours (default: 24)")
     ap.add_argument("--skip-supply-chain", action="store_true", help="skip the Bumblebee scan section")
     ap.add_argument("--quiet", action="store_true", help="suppress progress output on stdout")
+    ap.add_argument(
+        "--strict",
+        action="store_true",
+        help="exit 3 when any section failed (the snapshot and ledger entry are still written)",
+    )
     ap.add_argument("--verify-ledger", action="store_true", help="verify the evidence ledger hash chain and exit")
     ap.add_argument(
         "--validate",
@@ -220,4 +227,7 @@ def main(argv: list[str] | None = None) -> int:
         print("findings: " + (", ".join(f"{k}={v}" for k, v in sorted(counts.items())) or "none"))
         for section, error in snapshot.get("section_errors", {}).items():
             print(f"warning: {section} section failed: {error}")
+    if args.strict and snapshot.get("section_errors"):
+        print("error: --strict: one or more sections failed (snapshot was still written)", file=sys.stderr)
+        return EXIT_DEGRADED
     return EXIT_OK

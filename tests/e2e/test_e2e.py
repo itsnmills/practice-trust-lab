@@ -221,6 +221,24 @@ def test_section_failure_degrades_gracefully(lab, monkeypatch):
     assert "## File shares" in md
 
 
+def test_cli_strict_exits_3_but_still_records_evidence(lab, monkeypatch, capsys):
+    def boom():
+        raise RuntimeError("identity collector exploded")
+
+    monkeypatch.setattr(identity, "collect", boom)
+    code = run_cli(lab, "run1", "--strict")
+    assert code == 3
+    assert "--strict" in capsys.readouterr().err
+    files = snapshot_files(lab)
+    assert len(files) == 1
+    ok, msgs = ledger.verify_ledger(lab.ledger, base_dir=lab.base_dir)
+    assert ok, msgs
+
+
+def test_cli_strict_exits_0_on_clean_run(lab):
+    assert run_cli(lab, "run1", "--strict") == 0
+
+
 def test_cli_degrades_gracefully_and_still_exits_0(lab, monkeypatch, capsys):
     def boom():
         raise RuntimeError("identity collector exploded")

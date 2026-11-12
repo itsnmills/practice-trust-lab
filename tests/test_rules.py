@@ -1,6 +1,7 @@
 """The rules registry is the single source of truth for reviewer-facing fields."""
 
 import ast
+import re
 from dataclasses import fields
 from pathlib import Path
 
@@ -155,29 +156,24 @@ def test_registry_fields_are_stable_exports():
     assert DEFAULT_RULE.severity in SEVERITY_ORDER
 
 
+RULE_ID_RE = re.compile(r"^(?:POL|ACL|PRIV|HYG|IDN|SHR|EP|EHR|AUTH|SUPPLY)-[A-Z0-9]+(?:-[A-Z0-9]+)*$")
+
+
 def declared_rule_ids() -> set[str]:
-    """Rule ids declared in any section module's module-level RULES mapping."""
+    """Rule-id string literals anywhere in the section modules (what the collector can emit)."""
     declared: set[str] = set()
     for path in SECTIONS_DIR.glob("*.py"):
-        tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
-        for node in tree.body:
-            if isinstance(node, ast.Assign):
-                targets, value = node.targets, node.value
-            elif isinstance(node, ast.AnnAssign):
-                targets, value = [node.target], node.value
-            else:
-                continue
-            if not any(isinstance(target, ast.Name) and target.id == "RULES" for target in targets):
-                continue
-            if not isinstance(value, ast.Dict):
-                continue
-            for key in value.keys:
-                if isinstance(key, ast.Constant) and isinstance(key.value, str):
-                    declared.add(key.value)
+        for node in ast.walk(ast.parse(path.read_text(encoding="utf-8"), filename=str(path))):
+            if isinstance(node, ast.Constant) and isinstance(node.value, str) and RULE_ID_RE.match(node.value):
+                declared.add(node.value)
     return declared
+
+
+def test_registry_has_no_rule_the_collector_cannot_emit():
+    assert set(RULES) <= declared_rule_ids()
 
 
 def test_every_section_declared_rule_id_is_registered():
     declared = declared_rule_ids()
-    assert declared, "expected section modules to declare a RULES mapping"
+    assert len(declared) >= 40, "expected the section modules to emit their rule ids"
     assert declared <= set(RULES), f"unregistered rule ids: {sorted(declared - set(RULES))}"

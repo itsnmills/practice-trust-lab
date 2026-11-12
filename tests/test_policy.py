@@ -60,7 +60,7 @@ def settings(**overrides):
 
 
 def rules(findings):
-    return [f.extra["rule_id"] for f in findings]
+    return [f.rule_id for f in findings]
 
 
 def test_parse_settings_ignores_errors_and_blank_lines():
@@ -108,7 +108,7 @@ def test_compliant_policy_has_no_findings():
 def test_lab_policy_trips_min_length_rotation_and_min_age():
     found = rules(policy.evaluate(policy.parse_settings(LAB_POLICY)))
     assert found == ["POL-MIN-LENGTH", "POL-MAX-AGE", "POL-MIN-AGE"]
-    [length] = [f for f in policy.evaluate(policy.parse_settings(LAB_POLICY)) if f.extra["rule_id"] == "POL-MIN-LENGTH"]
+    [length] = [f for f in policy.evaluate(policy.parse_settings(LAB_POLICY)) if f.rule_id == "POL-MIN-LENGTH"]
     assert length.severity == "medium"
     assert "below baseline 12" in length.detail
     assert "164.308(a)(5)(ii)(D)" in registry_cites("POL-MIN-LENGTH")
@@ -135,7 +135,7 @@ def test_missing_minimum_length_is_reported():
     values = settings()
     del values["Minimum password length"]
     [finding] = policy.evaluate(values)
-    assert finding.extra["rule_id"] == "POL-MIN-LENGTH"
+    assert finding.rule_id == "POL-MIN-LENGTH"
     assert finding.severity == "medium"
     assert "not reported" in finding.detail
 
@@ -148,7 +148,7 @@ def test_history_boundary(value, expected):
     found = policy.evaluate(settings(history=value))
     assert (found[0].severity if found else None) == expected
     if found:
-        assert found[0].extra["rule_id"] == "POL-HISTORY"
+        assert found[0].rule_id == "POL-HISTORY"
 
 
 @pytest.mark.parametrize(
@@ -166,13 +166,13 @@ def test_maximum_age_boundaries(value, expected):
     found = policy.evaluate(settings(max_age=value))
     assert (found[0].severity if found else None) == expected
     if found:
-        assert found[0].extra["rule_id"] == "POL-MAX-AGE"
+        assert found[0].rule_id == "POL-MAX-AGE"
 
 
 def test_minimum_age_boundary():
     assert policy.evaluate(settings(min_age="1")) == []
     [finding] = policy.evaluate(settings(min_age="0"))
-    assert finding.extra["rule_id"] == "POL-MIN-AGE"
+    assert finding.rule_id == "POL-MIN-AGE"
     assert finding.severity == "info"
 
 
@@ -196,7 +196,7 @@ def test_missing_or_unlimited_lockout_threshold_is_high():
     values = settings()
     del values["Account lockout threshold (attempts)"]
     [finding] = policy.evaluate(values)
-    assert finding.extra["rule_id"] == "POL-LOCKOUT-THRESHOLD"
+    assert finding.rule_id == "POL-LOCKOUT-THRESHOLD"
     assert finding.severity == "high"
     [unlimited] = policy.evaluate(settings(threshold="unlimited"))
     assert unlimited.severity == "high"
@@ -206,40 +206,40 @@ def test_lockout_duration_boundary_and_zero_means_admin_unlock():
     assert policy.evaluate(settings(duration="15", reset="15")) == []
     assert policy.evaluate(settings(duration="0", reset="10")) == []
     [short] = policy.evaluate(settings(duration="14", reset="10"))
-    assert short.extra["rule_id"] == "POL-LOCKOUT-DURATION"
+    assert short.rule_id == "POL-LOCKOUT-DURATION"
     assert short.severity == "low"
 
 
 def test_lockout_reset_defeating_duration_is_medium():
     found = policy.evaluate(settings(duration="15", reset="20"))
-    [finding] = [f for f in found if f.extra["rule_id"] == "POL-LOCKOUT-RESET"]
+    [finding] = [f for f in found if f.rule_id == "POL-LOCKOUT-RESET"]
     assert finding.severity == "medium"
     assert "exceeds lockout duration" in finding.detail
 
 
 def test_lockout_reset_above_baseline_is_low_when_duration_zero():
     found = policy.evaluate(settings(duration="0", reset="16"))
-    [finding] = [f for f in found if f.extra["rule_id"] == "POL-LOCKOUT-RESET"]
+    [finding] = [f for f in found if f.rule_id == "POL-LOCKOUT-RESET"]
     assert finding.severity == "low"
 
 
 def test_complexity_off_and_unknown():
     [off] = policy.evaluate(settings(complexity="off"))
-    assert (off.extra["rule_id"], off.severity) == ("POL-COMPLEXITY", "medium")
+    assert (off.rule_id, off.severity) == ("POL-COMPLEXITY", "medium")
     values = settings()
     del values["Password complexity"]
     [unknown] = policy.evaluate(values)
-    assert (unknown.extra["rule_id"], unknown.severity) == ("POL-COMPLEXITY", "low")
+    assert (unknown.rule_id, unknown.severity) == ("POL-COMPLEXITY", "low")
 
 
 def test_plaintext_on_is_high_and_missing_is_low():
     [on] = policy.evaluate(settings(plaintext="on"))
-    assert (on.extra["rule_id"], on.severity) == ("POL-PLAINTEXT", "high")
-    assert "164.312(a)(2)(iv)" in registry_cites("POL-PLAINTEXT")
+    assert (on.rule_id, on.severity) == ("POL-PLAINTEXT", "high")
+    assert "164.308(a)(5)(ii)(D)" in registry_cites("POL-PLAINTEXT")
     values = settings()
     del values["Store plaintext passwords"]
     [missing] = policy.evaluate(values)
-    assert (missing.extra["rule_id"], missing.severity) == ("POL-PLAINTEXT", "low")
+    assert (missing.rule_id, missing.severity) == ("POL-PLAINTEXT", "low")
 
 
 def test_baseline_is_overridable_data():
@@ -281,14 +281,3 @@ def test_lab_fixture_matches_the_documented_weak_policy():
     found = rules(policy.evaluate(policy.parse_settings(FIXTURE.read_text(encoding="utf-8"))))
     assert "POL-MIN-LENGTH" in found
     assert "POL-MAX-AGE" in found
-
-
-def test_all_section_rule_ids_are_registered_with_matching_groups():
-    from practice_evidence.sections import acls, hygiene, privilege
-    from practice_render.rules import RULES as REGISTRY
-
-    for module in (policy, acls, privilege, hygiene):
-        missing = set(module.RULES) - set(REGISTRY)
-        assert not missing, f"{module.__name__} rule ids not registered: {sorted(missing)}"
-        for rule_id, meta in module.RULES.items():
-            assert REGISTRY[rule_id].group == meta["group"], rule_id

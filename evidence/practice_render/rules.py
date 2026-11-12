@@ -15,7 +15,7 @@ This is a routing aid, not a compliance determination or legal advice.
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from typing import Any, NamedTuple
 
 SEVERITY_ORDER = {"high": 0, "medium": 1, "low": 2, "info": 3}
@@ -86,9 +86,9 @@ HIPAA_BY_GROUP: dict[str, tuple[Cite, ...]] = {
     "dormant": (TERMINATION, ACCESS_MGMT),
     "disabled": (TERMINATION,),
     "cached": (DEVICE_MEDIA, ACCESS_CONTROL),
-    "policy": (PWD_MANAGEMENT, AUTHENTICATION, ENCRYPTION),
+    "policy": (PWD_MANAGEMENT, AUTHENTICATION),
     "acl": (ACCESS_CONTROL, MIN_NECESSARY),
-    "svc": (AUTHENTICATION, ACCESS_MGMT, PWD_MANAGEMENT, ENCRYPTION),
+    "svc": (AUTHENTICATION, ACCESS_MGMT, PWD_MANAGEMENT),
     "hygiene": (TRANSMISSION, AUTHENTICATION, ACCESS_CONTROL),
 }
 
@@ -428,7 +428,7 @@ _CONTRIBUTED = {
         "Verified",
         {
             "HYG-DOMAIN-FUNCTION-LEVEL": ("Domain functional level below baseline", "low"),
-            "HYG-KRBTOG-AGE": ("krbtgt password older than baseline", "medium"),
+            "HYG-KRBTGT-AGE": ("krbtgt password older than baseline", "medium"),
             "HYG-SMB-SIGNING": ("SMB signing not required", "medium"),
             "HYG-LDAP-STRONG-AUTH": ("LDAP strong authentication not required", "high"),
             "HYG-NTLM-AUTH": ("NTLMv1 authentication permitted", "medium"),
@@ -436,6 +436,21 @@ _CONTRIBUTED = {
             "HYG-UNAVAILABLE": ("Hygiene signal could not be read", "info"),
         },
     ),
+}
+
+# A rule inherits its group's cites. Where a rule is plainly about something more
+# (or less) specific, override it so a packet row does not cite e.g. encryption
+# for a "minimum length too short" finding.
+RULE_CITE_OVERRIDES: dict[str, tuple[Cite, ...]] = {
+    "PRIV-NO-PREAUTH": (AUTHENTICATION, ACCESS_MGMT),
+    "HYG-DOMAIN-FUNCTION-LEVEL": (AUTHENTICATION,),
+    "POL-PLAINTEXT": (PWD_MANAGEMENT, AUTHENTICATION, ENCRYPTION),
+    "PRIV-REVERSIBLE-ENCRYPTION": (AUTHENTICATION, PWD_MANAGEMENT, ENCRYPTION),
+    "HYG-KRBTGT-AGE": (AUTHENTICATION,),
+    "HYG-SMB-SIGNING": (TRANSMISSION,),
+    "HYG-SMB1": (TRANSMISSION,),
+    "HYG-NTLM-AUTH": (TRANSMISSION, AUTHENTICATION),
+    "HYG-LDAP-STRONG-AUTH": (TRANSMISSION, AUTHENTICATION),
 }
 
 for _group, (_lane, _ask, _proof, _due, _confidence, _entries) in _CONTRIBUTED.items():
@@ -451,6 +466,8 @@ for _group, (_lane, _ask, _proof, _due, _confidence, _entries) in _CONTRIBUTED.i
             confidence=_confidence,
             severity=_severity,
         )
+        if _rule_id in RULE_CITE_OVERRIDES:
+            _contributed = replace(_contributed, hipaa=RULE_CITE_OVERRIDES[_rule_id])
         RULES[_contributed.rule_id] = _contributed
 
 
@@ -483,6 +500,11 @@ LEGACY_ORDER = (
 )
 
 
+# Rule ids that were renamed after snapshots carrying them existed. Old evidence
+# must keep rendering as the same row, so resolution maps the old id forward.
+RENAMED_RULE_IDS: dict[str, str] = {"HYG-KRBTOG-AGE": "HYG-KRBTGT-AGE"}
+
+
 def rule_for_detail(detail: str) -> Rule:
     """Legacy fallback: map old-style finding detail text to a rule."""
     lowered = (detail or "").lower()
@@ -496,6 +518,7 @@ def rule_for_detail(detail: str) -> Rule:
 def rule_for_finding(finding: dict[str, Any]) -> Rule:
     """Resolve a finding dict to a rule, preferring its stable rule id."""
     rule_id = finding.get("rule_id")
+    rule_id = RENAMED_RULE_IDS.get(rule_id, rule_id) if rule_id else rule_id
     if rule_id and rule_id in RULES:
         return RULES[rule_id]
     return rule_for_detail(finding.get("detail", ""))

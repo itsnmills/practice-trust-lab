@@ -16,7 +16,8 @@ The SDDL parser is deliberately small and strict: owner/group tags, DACL flags,
 allow vs deny ACEs, inheritance flags, numeric and common alphabetic masks, and
 well-known/domain SIDs.  Anything it cannot parse is reported, never guessed.
 
-HIPAA routing: §164.312(a)(1) access control, §164.502(b) minimum necessary.
+Titles, severities, owner lanes and HIPAA cites for this section's rule ids live in
+`practice_render.rules`, the single registry.
 """
 
 from __future__ import annotations
@@ -26,33 +27,9 @@ from collections.abc import Callable
 from typing import Any
 
 from ..config import SHARE_ACCESS_MODEL
-from ..models import Finding, dump_findings
+from ..models import Finding, dump_findings, tagged_finding
 from ..runner import ERROR_PREFIX, dexec
-from .policy import tagged_finding
 from .shares import parse_smb_conf
-
-ACCESS_CONTROL = "164.312(a)(1)"
-MIN_NECESSARY = "164.502(b)"
-CITE = f"HIPAA §{ACCESS_CONTROL}, §{MIN_NECESSARY}"
-
-RULES: dict[str, dict[str, Any]] = {
-    "ACL-EVERYONE-WRITE": {"group": "acl", "title": "Everyone can write to a share"},
-    "ACL-AUTHENTICATED-WRITE": {"group": "acl", "title": "Authenticated Users can write to a share"},
-    "ACL-DOMAIN-USERS-WRITE": {"group": "acl", "title": "Domain Users can write to a share"},
-    "ACL-USER-PRINCIPAL": {"group": "acl", "title": "ACL grants access directly to a user account"},
-    "ACL-NON-AGDLP-GROUP": {"group": "acl", "title": "ACL grants access to an undocumented group"},
-    "ACL-UNDOCUMENTED-WRITE": {"group": "acl", "title": "Share grants write to a principal outside the model"},
-    "ACL-UNDOCUMENTED-READ": {"group": "acl", "title": "Share grants read to a principal outside the model"},
-    "ACL-BROAD-READ": {"group": "acl", "title": "Everyone-style principal can read the share directory"},
-    "ACL-BROADER-THAN-VALID-USERS": {"group": "acl", "title": "Filesystem ACL broader than smb.conf valid users"},
-    "ACL-VALID-USERS-NOT-GRANTED": {"group": "acl", "title": "smb.conf valid user has no matching ACL entry"},
-    "ACL-NO-VALID-USERS": {"group": "acl", "title": "Share has no valid users gate"},
-    "ACL-UNMODELED-SHARE": {"group": "acl", "title": "Share is not in the documented access model"},
-    "ACL-NULL-DACL": {"group": "acl", "title": "Null DACL grants full control to everyone"},
-    "ACL-PARSE-ERROR": {"group": "acl", "title": "Share ACL could not be parsed"},
-    "ACL-UNAVAILABLE": {"group": "acl", "title": "Share ACL could not be read"},
-    "ACL-UNRESOLVED-PRINCIPAL": {"group": "acl", "title": "ACL principal SID could not be resolved"},
-}
 
 # --- well-known principals -------------------------------------------------
 
@@ -398,7 +375,7 @@ def evaluate_share(
         if key in seen:
             return
         seen.add(key)
-        findings.append(tagged_finding(severity, detail, rule_id, subject, cite=CITE, **extra))
+        findings.append(tagged_finding(severity, detail, rule_id, subject, **extra))
 
     if parsed.get("null_dacl"):
         add("high", "ACL-NULL-DACL", f"{name}: null DACL grants full control to everyone", name)
@@ -579,7 +556,6 @@ def collect() -> dict[str, Any]:
                         f"share ACLs could not be collected because smb.conf is unreadable ({conf[:120]})",
                         "ACL-UNAVAILABLE",
                         "smb.conf",
-                        cite=CITE,
                     )
                 ]
             ),
@@ -614,7 +590,6 @@ def collect() -> dict[str, Any]:
                     f"{name}: filesystem ACL could not be read ({sddl[:120]})",
                     "ACL-UNAVAILABLE",
                     name,
-                    cite=CITE,
                 )
             )
             shares_out.append(record)
@@ -630,7 +605,6 @@ def collect() -> dict[str, Any]:
                     f"{name}: filesystem ACL could not be parsed ({exc}); raw ACL withheld",
                     "ACL-PARSE-ERROR",
                     name,
-                    cite=CITE,
                 )
             )
             shares_out.append(record)
