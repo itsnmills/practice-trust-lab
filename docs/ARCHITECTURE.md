@@ -160,6 +160,15 @@ command they issue is in the section module's docstring and on the collector all
   no plaintext storage). The lab's own minimum length 10 and 42-day maximum age trip
   `POL-MIN-LENGTH` and `POL-MAX-AGE` by design. The baseline is a frozen dataclass and
   tests cover each threshold on both sides.
+
+  The baseline is a conventional Windows/insurer-style policy, not a NIST one. Checked
+  against SP 800-63B-4 (2025): NIST says verifiers SHALL NOT impose composition rules
+  or require periodic password changes, and requires 15 characters for single-factor
+  passwords. So `POL-COMPLEXITY` and `POL-MAX-AGE` (never-expires) flag things NIST
+  would accept, and a 12-character minimum is below NIST's single-factor floor. Keep
+  the defaults if your insurer or auditor expects them; override the dataclass if you
+  follow NIST. Lockout (NIST requires rate limiting, at most 100 failures) is stricter
+  here by design.
 - `samba-tool ntacl get <path> --as-sddl`, `wbinfo -s <SID>`, `samba-tool group list`
   and `samba-tool user list` — the SDDL parser handles owner/group tags, allow/deny
   ACEs, `OI`/`CI`/`IO`/`ID` inheritance, numeric and alphabetic masks, well-known

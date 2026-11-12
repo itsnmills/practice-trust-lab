@@ -33,7 +33,7 @@ SHARE_ACCESS_MODEL = {
 # Domain hygiene baselines.  Samba AD caps the functional level at 2008 R2, so
 # the lab is expected to report this one by design.
 MIN_DOMAIN_FUNCTION_LEVEL = "2016"
-KRBTOG_MAX_AGE_DAYS = 180
+KRBTGT_MAX_AGE_DAYS = 180
 
 ENDPOINTS = [
     {"name": "ws-clinical-01", "dir": "workstation-01", "role": "Clinical workstation"},

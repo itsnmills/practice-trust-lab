@@ -108,9 +108,9 @@ def test_function_level_below_baseline_and_unparseable():
 def test_krbtgt_age_boundaries():
     assert hygiene.evaluate({"domain function level": "2016"}, GOOD_SMB, 180) == []
     [old] = hygiene.evaluate({"domain function level": "2016"}, GOOD_SMB, 181)
-    assert (old.extra["rule_id"], old.severity) == ("HYG-KRBTOG-AGE", "medium")
+    assert (old.extra["rule_id"], old.severity) == ("HYG-KRBTGT-AGE", "medium")
     [unknown] = hygiene.evaluate({"domain function level": "2016"}, GOOD_SMB, None)
-    assert unknown.extra["rule_id"] == "HYG-KRBTOG-AGE"
+    assert unknown.extra["rule_id"] == "HYG-KRBTGT-AGE"
     assert unknown.severity == "low"
 
 
@@ -242,4 +242,4 @@ def test_collect_still_evaluates_smb_when_level_and_krbtgt_fail(monkeypatch):
     found_rules = [f["rule_id"] for f in out["findings"]]
     assert "HYG-SMB-SIGNING" in found_rules
     assert "HYG-DOMAIN-FUNCTION-LEVEL" in found_rules
-    assert "HYG-KRBTOG-AGE" in found_rules
+    assert "HYG-KRBTGT-AGE" in found_rules

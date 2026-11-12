@@ -189,6 +189,12 @@ and section 5.8 lists them per evidence ref. The mapping lives in
 This is a routing aid, not a compliance determination. It says what a finding is
 relevant to, not that a provision is violated.
 
+Every section number, heading, and required/addressable label in the registry was
+checked against the current 45 CFR 164.308, .310, .312 and .502 text from eCFR
+(2026-11-12). Which provision a given finding relates to is a judgment call; rules
+whose subject is narrower than their group carry their own citations
+(`RULE_CITE_OVERRIDES` in `evidence/practice_render/rules.py`). Not legal advice.
+
 ## Documentation
 
 - [Architecture](docs/ARCHITECTURE.md): components, module map, snapshot and ledger formats

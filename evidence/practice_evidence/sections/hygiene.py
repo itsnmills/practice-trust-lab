@@ -20,7 +20,7 @@ import re
 from datetime import datetime, timedelta, timezone
 from typing import Any
 
-from ..config import KRBTOG_MAX_AGE_DAYS, MIN_DOMAIN_FUNCTION_LEVEL
+from ..config import KRBTGT_MAX_AGE_DAYS, MIN_DOMAIN_FUNCTION_LEVEL
 from ..models import Finding, dump_findings
 from ..runner import ERROR_PREFIX, dexec
 from .policy import tagged_finding
@@ -32,7 +32,7 @@ ACCESS_CONTROL = "164.312(a)(1)"
 
 RULES: dict[str, dict[str, Any]] = {
     "HYG-DOMAIN-FUNCTION-LEVEL": {"group": "hygiene", "title": "Domain functional level below baseline"},
-    "HYG-KRBTOG-AGE": {"group": "hygiene", "title": "krbtgt password older than baseline"},
+    "HYG-KRBTGT-AGE": {"group": "hygiene", "title": "krbtgt password older than baseline"},
     "HYG-SMB-SIGNING": {"group": "hygiene", "title": "SMB signing not required"},
     "HYG-LDAP-STRONG-AUTH": {"group": "hygiene", "title": "LDAP strong authentication not required"},
     "HYG-NTLM-AUTH": {"group": "hygiene", "title": "NTLMv1 authentication permitted"},
@@ -125,7 +125,7 @@ def evaluate(
     smb: dict[str, str],
     krbtgt_days: int | None,
     min_level: str = MIN_DOMAIN_FUNCTION_LEVEL,
-    krbtgt_max_age: int = KRBTOG_MAX_AGE_DAYS,
+    krbtgt_max_age: int = KRBTGT_MAX_AGE_DAYS,
 ) -> list[Finding]:
     findings: list[Finding] = []
 
@@ -158,7 +158,7 @@ def evaluate(
             tagged_finding(
                 "low",
                 f"krbtgt password age could not be determined; baseline rotation every {krbtgt_max_age} days ",
-                "HYG-KRBTOG-AGE",
+                "HYG-KRBTGT-AGE",
                 "krbtgt",
             )
         )
@@ -167,7 +167,7 @@ def evaluate(
             tagged_finding(
                 "medium",
                 f"krbtgt password is {krbtgt_days} days old, above the {krbtgt_max_age}-day rotation baseline ",
-                "HYG-KRBTOG-AGE",
+                "HYG-KRBTGT-AGE",
                 "krbtgt",
                 observed_days=krbtgt_days,
                 baseline_days=krbtgt_max_age,
@@ -255,7 +255,7 @@ def collect() -> dict[str, Any]:
     krbtgt = {
         "sam": "krbtgt",
         "password_age_days": days,
-        "baseline_days": KRBTOG_MAX_AGE_DAYS,
+        "baseline_days": KRBTGT_MAX_AGE_DAYS,
     }
     settings = {
         key: smb[key]

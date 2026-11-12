@@ -235,7 +235,7 @@ def test_complexity_off_and_unknown():
 def test_plaintext_on_is_high_and_missing_is_low():
     [on] = policy.evaluate(settings(plaintext="on"))
     assert (on.extra["rule_id"], on.severity) == ("POL-PLAINTEXT", "high")
-    assert "164.312(a)(2)(iv)" in registry_cites("POL-PLAINTEXT")
+    assert "164.308(a)(5)(ii)(D)" in registry_cites("POL-PLAINTEXT")
     values = settings()
     del values["Store plaintext passwords"]
     [missing] = policy.evaluate(values)

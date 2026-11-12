@@ -46,13 +46,19 @@ RULES: dict[str, dict[str, Any]] = {
 
 @dataclass(frozen=True)
 class PolicyBaseline:
-    """Documented small-clinic baseline.  Every value can be overridden."""
+    """Documented small-clinic baseline.  Every value can be overridden.
+
+    This is a conventional Windows/insurer-style baseline (complexity on, bounded
+    expiry, history 24).  It is NOT aligned with NIST SP 800-63B-4, which says
+    verifiers SHALL NOT impose composition rules or periodic changes and requires
+    15 characters for single-factor passwords.  See docs/ARCHITECTURE.md.
+    """
 
     min_length: int = 12
     complexity_required: bool = True
     history_min: int = 24
     max_age_ceiling_days: int = 365
-    min_max_age_days: int = 90  # NIST 800-63B discourages frequent forced rotation
+    min_max_age_days: int = 90  # very short expiry breeds predictable password changes
     min_age_days: int = 1
     lockout_threshold_max: int = 10
     lockout_duration_min: int = 15
@@ -232,7 +238,7 @@ def evaluate(settings: dict[str, str], baseline: PolicyBaseline = DEFAULT_BASELI
             "low",
             "POL-MAX-AGE",
             f"domain password maximum age {max_age} days forces frequent rotation; "
-            f"NIST 800-63B discourages rotation below {baseline.min_max_age_days} days",
+            f"baseline floor {baseline.min_max_age_days} days",
             observed=max_age,
             baseline=baseline.min_max_age_days,
         )
