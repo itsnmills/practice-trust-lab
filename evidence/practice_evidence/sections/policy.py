@@ -9,10 +9,8 @@ Read-only commands (safe for the collector allowlist):
 
     docker exec samba-dc samba-tool domain passwordsettings show
 
-HIPAA routing (informational, not a compliance determination):
-    §164.308(a)(5)(ii)(D) password management
-    §164.312(d)           person or entity authentication
-    §164.312(a)(2)(iv)    encryption and decryption (plaintext storage)
+Titles, severities, owner lanes and HIPAA cites for this section's rule ids live in
+`practice_render.rules`, the single registry.
 """
 
 from __future__ import annotations
@@ -21,27 +19,8 @@ import re
 from dataclasses import asdict, dataclass
 from typing import Any
 
-from ..models import Finding, dump_findings
+from ..models import Finding, dump_findings, tagged_finding
 from ..runner import ERROR_PREFIX, dexec
-
-PWD_MANAGEMENT = "164.308(a)(5)(ii)(D)"
-AUTHENTICATION = "164.312(d)"
-ENCRYPTION = "164.312(a)(2)(iv)"
-
-# rule_id -> renderer/registry metadata.  Agent B's rule registry can consume
-# this directly; until it exists these ids travel in Finding.extra.
-RULES: dict[str, dict[str, Any]] = {
-    "POL-MIN-LENGTH": {"group": "policy", "title": "Password minimum length below baseline"},
-    "POL-COMPLEXITY": {"group": "policy", "title": "Password complexity disabled or unknown"},
-    "POL-HISTORY": {"group": "policy", "title": "Password history shorter than baseline"},
-    "POL-MAX-AGE": {"group": "policy", "title": "Password maximum age outside baseline"},
-    "POL-MIN-AGE": {"group": "policy", "title": "Password minimum age allows immediate reuse"},
-    "POL-LOCKOUT-THRESHOLD": {"group": "policy", "title": "Account lockout threshold weak or disabled"},
-    "POL-LOCKOUT-DURATION": {"group": "policy", "title": "Account lockout duration weak"},
-    "POL-LOCKOUT-RESET": {"group": "policy", "title": "Lockout reset counter defeats the lockout"},
-    "POL-PLAINTEXT": {"group": "policy", "title": "Plaintext password storage enabled or unknown"},
-    "POL-UNAVAILABLE": {"group": "policy", "title": "Password policy could not be read"},
-}
 
 
 @dataclass(frozen=True)
@@ -83,36 +62,6 @@ _FIELDS = {
 _UNLIMITED = {"", "unlimited", "none", "never", "not set", "n/a", "unknown"}
 _TRUE = {"on", "yes", "true", "enabled", "1"}
 _FALSE = {"off", "no", "false", "disabled", "0"}
-
-
-def tagged_finding(
-    severity: str,
-    detail: str,
-    rule_id: str,
-    subject: str,
-    ref_key: str | None = None,
-    **extra: Any,
-) -> Finding:
-    """Build a Finding carrying a stable rule id and subject.
-
-    While the Finding model has no first-class ``rule_id``/``subject`` fields
-    (agent B's change), they live in ``extra`` and therefore serialise into the
-    snapshot JSON.  Once the dataclass grows the fields this adopts them.
-    """
-    payload = dict(extra)
-    payload["rule_id"] = rule_id
-    payload["subject"] = subject
-    fields = getattr(Finding, "__dataclass_fields__", {})
-    if "rule_id" in fields and "subject" in fields:
-        return Finding(
-            severity=severity,
-            detail=detail,
-            ref_key=ref_key,
-            rule_id=rule_id,
-            subject=subject,
-            extra=payload,
-        )
-    return Finding(severity=severity, detail=detail, ref_key=ref_key, extra=payload)
 
 
 def parse_settings(raw: str) -> dict[str, str]:

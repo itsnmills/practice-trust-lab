@@ -11,7 +11,8 @@ Read-only commands (safe for the collector allowlist):
     docker exec samba-dc samba-tool user list
     docker exec samba-dc samba-tool user show <sam>
 
-HIPAA routing: §164.312(d) authentication, §164.308(a)(4)(ii)(C) access
+Titles, severities, owner lanes and HIPAA cites for this section's rule ids live in
+`practice_render.rules`, the single registry.
 establishment and modification, §164.308(a)(3)(ii)(C) termination procedures,
 §164.308(a)(5)(ii)(D) password management, §164.312(a)(2)(iv) encryption.
 """
@@ -22,26 +23,8 @@ from datetime import datetime, timedelta, timezone
 from typing import Any
 
 from ..config import ENDPOINTS, ROLE_GROUPS
-from ..models import Finding, dump_findings
+from ..models import Finding, dump_findings, tagged_finding
 from ..runner import ERROR_PREFIX, dexec
-from .policy import tagged_finding
-
-AUTHENTICATION = "164.312(d)"
-ACCESS_MGMT = "164.308(a)(4)(ii)(C)"
-TERMINATION = "164.308(a)(3)(ii)(C)"
-PWD_MANAGEMENT = "164.308(a)(5)(ii)(D)"
-ENCRYPTION = "164.312(a)(2)(iv)"
-
-RULES: dict[str, dict[str, Any]] = {
-    "PRIV-KERBEROASTABLE": {"group": "svc", "title": "Service principal exposed to Kerberoasting"},
-    "PRIV-PASSWORD-NEVER-EXPIRES": {"group": "svc", "title": "Privileged/service password never expires"},
-    "PRIV-NO-PREAUTH": {"group": "svc", "title": "Account does not require Kerberos pre-authentication"},
-    "PRIV-REVERSIBLE-ENCRYPTION": {"group": "svc", "title": "Account permits reversible password encryption"},
-    "PRIV-ADMIN-NEVER-LOGON": {"group": "admin", "title": "Privileged account has never logged on"},
-    "PRIV-ADMIN-INTERACTIVE": {"group": "admin", "title": "Privileged account used on an endpoint"},
-    "PRIV-NESTED-ADMIN": {"group": "admin", "title": "Privileged group reached through nesting"},
-    "PRIV-GROUP-UNAVAILABLE": {"group": "admin", "title": "Privileged group membership could not be read"},
-}
 
 # userAccountControl bits (Microsoft 2.2.1.10 / LDAP uAC values).
 UAC_FLAGS: dict[int, str] = {
@@ -337,7 +320,7 @@ def collect(auth: dict[str, Any] | None = None) -> dict[str, Any]:
         account["role_groups"] = [g for g, info in roles.items() if sam in info["effective_users"]]
         accounts.append(account)
         for finding in account_findings(account, is_privileged):
-            key = (finding.extra.get("rule_id", ""), finding.extra.get("subject", ""))
+            key = (finding.rule_id or "", finding.subject or "")
             if key in seen:
                 continue
             seen.add(key)

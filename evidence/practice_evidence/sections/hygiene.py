@@ -10,8 +10,8 @@ Read-only commands (safe for the collector allowlist):
     docker exec samba-dc samba-tool user show krbtgt
     docker exec samba-dc cat /etc/samba/smb.conf
 
-HIPAA routing: §164.312(e)(1) transmission security, §164.312(d) authentication,
-§164.308(a)(5)(ii)(D) password management, §164.312(a)(1) access control.
+Titles, severities, owner lanes and HIPAA cites for this section's rule ids live in
+`practice_render.rules`, the single registry.
 """
 
 from __future__ import annotations
@@ -21,24 +21,8 @@ from datetime import datetime, timedelta, timezone
 from typing import Any
 
 from ..config import KRBTGT_MAX_AGE_DAYS, MIN_DOMAIN_FUNCTION_LEVEL
-from ..models import Finding, dump_findings
+from ..models import Finding, dump_findings, tagged_finding
 from ..runner import ERROR_PREFIX, dexec
-from .policy import tagged_finding
-
-TRANSMISSION = "164.312(e)(1)"
-AUTHENTICATION = "164.312(d)"
-PWD_MANAGEMENT = "164.308(a)(5)(ii)(D)"
-ACCESS_CONTROL = "164.312(a)(1)"
-
-RULES: dict[str, dict[str, Any]] = {
-    "HYG-DOMAIN-FUNCTION-LEVEL": {"group": "hygiene", "title": "Domain functional level below baseline"},
-    "HYG-KRBTGT-AGE": {"group": "hygiene", "title": "krbtgt password older than baseline"},
-    "HYG-SMB-SIGNING": {"group": "hygiene", "title": "SMB signing not required"},
-    "HYG-LDAP-STRONG-AUTH": {"group": "hygiene", "title": "LDAP strong authentication not required"},
-    "HYG-NTLM-AUTH": {"group": "hygiene", "title": "NTLMv1 authentication permitted"},
-    "HYG-SMB1": {"group": "hygiene", "title": "SMB1 protocol permitted"},
-    "HYG-UNAVAILABLE": {"group": "hygiene", "title": "Hygiene signal could not be read"},
-}
 
 _FILETIME_EPOCH = datetime(1601, 1, 1, tzinfo=timezone.utc)
 _SMB1_VALUES = {"nt1", "smb1", "core", "coreplus"}

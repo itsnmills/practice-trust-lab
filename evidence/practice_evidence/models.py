@@ -44,3 +44,15 @@ class Finding:
 
 def dump_findings(findings: list[Finding]) -> list[dict[str, Any]]:
     return [f.to_dict() for f in findings]
+
+
+def tagged_finding(
+    severity: str,
+    detail: str,
+    rule_id: str,
+    subject: str,
+    ref_key: str | None = None,
+    **extra: Any,
+) -> Finding:
+    """Build a Finding with a stable rule id and subject; keyword args become extra fields."""
+    return Finding(severity, detail, rule_id=rule_id, subject=subject, ref_key=ref_key, extra=dict(extra))

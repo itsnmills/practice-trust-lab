@@ -25,7 +25,7 @@ servicePrincipalName: cifs/backup.millslab.internal
 
 
 def rules(findings):
-    return [f.extra["rule_id"] for f in findings]
+    return [f.rule_id for f in findings]
 
 
 # --- UAC -------------------------------------------------------------------
@@ -152,7 +152,7 @@ def test_privileged_normal_account_has_no_findings():
 
 def test_kerberoastable_severity_depends_on_privilege():
     [service] = privilege.account_findings(account(spn_count=1, service_account=True), privileged=False)
-    assert (service.extra["rule_id"], service.severity) == ("PRIV-KERBEROASTABLE", "medium")
+    assert (service.rule_id, service.severity) == ("PRIV-KERBEROASTABLE", "medium")
     [admin] = privilege.account_findings(account(spn_count=1), privileged=True)
     assert admin.severity == "high"
 
@@ -161,7 +161,7 @@ def test_no_preauth_and_reversible_are_high():
     found = privilege.account_findings(
         account(no_preauth=True, reversible_encryption=True, service_account=True), privileged=False
     )
-    assert {(f.extra["rule_id"], f.severity) for f in found} == {
+    assert {(f.rule_id, f.severity) for f in found} == {
         ("PRIV-NO-PREAUTH", "high"),
         ("PRIV-REVERSIBLE-ENCRYPTION", "high"),
     }
@@ -170,15 +170,15 @@ def test_no_preauth_and_reversible_are_high():
 def test_password_never_expires_only_for_privileged_or_service():
     assert privilege.account_findings(account(password_never_expires=True), privileged=False) == []
     [svc] = privilege.account_findings(account(password_never_expires=True, service_account=True), privileged=False)
-    assert svc.extra["rule_id"] == "PRIV-PASSWORD-NEVER-EXPIRES"
+    assert svc.rule_id == "PRIV-PASSWORD-NEVER-EXPIRES"
     assert svc.severity == "medium"
     [admin] = privilege.account_findings(account(password_never_expires=True), privileged=True)
-    assert admin.extra["rule_id"] == "PRIV-PASSWORD-NEVER-EXPIRES"
+    assert admin.rule_id == "PRIV-PASSWORD-NEVER-EXPIRES"
 
 
 def test_admin_never_logged_on():
     [finding] = privilege.account_findings(account(never_logged_on=True), privileged=True)
-    assert finding.extra["rule_id"] == "PRIV-ADMIN-NEVER-LOGON"
+    assert finding.rule_id == "PRIV-ADMIN-NEVER-LOGON"
     assert finding.severity == "medium"
     assert privilege.account_findings(account(never_logged_on=True), privileged=False) == []
 
@@ -189,7 +189,7 @@ def test_disabled_account_has_no_findings():
 
 def test_findings_subject_is_the_account():
     [finding] = privilege.account_findings(account(no_preauth=True), privileged=True)
-    assert finding.extra["subject"] == "nmills"
+    assert finding.subject == "nmills"
 
 
 def test_interactive_admin_needs_workstation_attribution():
@@ -203,7 +203,7 @@ def test_interactive_admin_needs_workstation_attribution():
         {"by_user": {"nmills": {"success": 4, "workstations": ["ws-clinical-01"]}}},
         {"ws-clinical-01"},
     )
-    assert finding.extra["rule_id"] == "PRIV-ADMIN-INTERACTIVE"
+    assert finding.rule_id == "PRIV-ADMIN-INTERACTIVE"
     assert finding.severity == "medium"
     [by_ws] = privilege.interactive_admin_findings(
         accounts, {"by_user_workstation": {"nmills": ["msp-jump-01"]}}, {"msp-jump-01"}
